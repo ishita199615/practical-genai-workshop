@@ -26,6 +26,7 @@ from models.job import (
     JobPosting,
 )
 from models.match import MatchResult
+from models.query import SearchQuery
 from tools.experience_level import levels_conflict
 
 # --------------------------------------------------------------------------
@@ -179,6 +180,10 @@ def run_agent(params: dict[str, Any]) -> None:
     """Start a new run and stop at the job-selection pause."""
     reset_run()
     st.session_state.run_params = params
+    # The agent has one search, whichever route answers it. Publishing it here
+    # lets the employer-board page continue the same query rather than open a
+    # second, unrelated one.
+    st.session_state.query = SearchQuery.from_dict(params)
     graph = get_graph()
     with st.status("Running the career agent…", expanded=True) as status:
         status.write("Retrieving current public job pages…")
@@ -220,7 +225,8 @@ settings = st.session_state.settings
 # Header
 # --------------------------------------------------------------------------
 
-st.title("Cougar Career Agent")
+st.title("🎓 Cougar Career Agent")
+st.subheader("🎯 Full demo")
 st.caption("Fresh jobs. Explainable matching. ATS-ready, truthful tailoring.")
 
 st.warning(
@@ -248,14 +254,24 @@ for warning in settings.startup_warnings:
 
 st.subheader("A · Search preferences")
 
+# Seeded from the agent's current search, so a role or location entered on the
+# employer-board page arrives here already filled in.
+if "query" not in st.session_state:
+    st.session_state.query = SearchQuery(
+        query_category=settings.default_source_category,
+        freshness_window=settings.default_freshness_window,
+        experience_level=settings.default_experience_level,
+    )
+query: SearchQuery = st.session_state.query
+
 with st.form("search_preferences"):
     row_one = st.columns([2, 2, 1])
-    role = row_one[0].text_input("Target role", value="Data Analyst Intern")
-    location = row_one[1].text_input("Location", value="Houston, TX")
+    role = row_one[0].text_input("Target role", value=query.role)
+    location = row_one[1].text_input("Location", value=query.location)
     work_mode = row_one[2].selectbox(
         "Work mode",
         options=[key for key, _ in WORK_MODE_OPTIONS],
-        index=0,
+        index=value_index(WORK_MODE_OPTIONS, query.work_mode),
         format_func=lambda key: label_for(WORK_MODE_OPTIONS, key),
     )
 
@@ -263,21 +279,21 @@ with st.form("search_preferences"):
     query_category = row_two[0].selectbox(
         "Job source / query category",
         options=[key for key, _ in SOURCE_OPTIONS],
-        index=value_index(SOURCE_OPTIONS, settings.default_source_category),
+        index=value_index(SOURCE_OPTIONS, query.query_category),
         format_func=lambda key: label_for(SOURCE_OPTIONS, key),
         help="This filters the search. The actual source is detected from each result's URL.",
     )
     freshness_window = row_two[1].selectbox(
         "Freshness",
         options=[key for key, _ in FRESHNESS_OPTIONS],
-        index=value_index(FRESHNESS_OPTIONS, settings.default_freshness_window),
+        index=value_index(FRESHNESS_OPTIONS, query.freshness_window),
         format_func=lambda key: label_for(FRESHNESS_OPTIONS, key),
         help="A search filter narrows results; it is not proof of the posting time.",
     )
     experience_level = row_two[2].selectbox(
         "Experience level",
         options=[key for key, _ in EXPERIENCE_OPTIONS],
-        index=value_index(EXPERIENCE_OPTIONS, settings.default_experience_level),
+        index=value_index(EXPERIENCE_OPTIONS, query.experience_level),
         format_func=lambda key: label_for(EXPERIENCE_OPTIONS, key),
         help=(
             "This shapes the search. Each result's level is read from the "

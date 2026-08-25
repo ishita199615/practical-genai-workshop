@@ -1,20 +1,26 @@
-"""Browse live postings straight from employers' own applicant-tracking systems.
+"""Cougar Career Agent — the same search, answered from employers' own boards.
 
-This page does not search the web. It reads the JSON boards Workday, Greenhouse,
-Lever, and Ashby already publish, so every posting arrives with the location and
-publish date the employer stated, rather than ones inferred from page text.
+The Full Demo answers a search by retrieving public job pages and reading them.
+This page answers the *same* search a second way: by reading the JSON boards
+Workday, Greenhouse, Lever, and Ashby already publish. One agent, one query,
+two routes to it.
 
-Nothing here calls a language model, which is why it costs nothing to run and
-returns the same answer twice.
+The difference is what each route can prove. A scraped page states its location
+and posting date in prose, if at all, so both have to be read out and verified.
+A board states them as fields. That is why this route can group by city and
+country with confidence, and why it needs no language model — which also means
+it costs nothing and returns the same answer twice.
 """
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import streamlit as st
 
+from config import load_settings
+from models.job import FRESHNESS_LABELS
+from models.query import SearchQuery
 from tools.ats_boards import (
     AtsPosting,
     _filter,
@@ -22,24 +28,30 @@ from tools.ats_boards import (
     group_by_country,
     load_employers,
 )
+from tools.job_filter import requested_location_terms
 
 REGISTRY_PATH = Path("data/employers.json")
 CACHE_TTL_SECONDS = 600
 
-AGE_OPTIONS: list[tuple[int | None, str]] = [
-    (1, "Last 24 hours"),
-    (3, "Last 3 days"),
-    (7, "Last 7 days"),
-    (30, "Last 30 days"),
-    (None, "Any age"),
-]
-
-st.title("🌍 Browse by location")
+st.title("🎓 Cougar Career Agent")
+st.subheader("🌍 Browse by location")
 st.caption(
-    "Read directly from employers' own job-board APIs — no web search, no "
-    "scraping, no API key, and no AI model. Location and posting date are as "
-    "the employer published them."
+    "The same search as the Full Demo, answered from employers' own job-board "
+    "APIs — no web search, no scraping, no API key, and no AI model. Location "
+    "and posting date are as the employer published them."
 )
+
+if "settings" not in st.session_state:
+    st.session_state.settings = load_settings()
+settings = st.session_state.settings
+
+if "query" not in st.session_state:
+    st.session_state.query = SearchQuery(
+        query_category=settings.default_source_category,
+        freshness_window=settings.default_freshness_window,
+        experience_level=settings.default_experience_level,
+    )
+query: SearchQuery = st.session_state.query
 
 employers = load_employers(REGISTRY_PATH)
 if not employers:
@@ -57,49 +69,78 @@ def load_postings(search_text: str) -> list[AtsPosting]:
     return fetch_all(load_employers(REGISTRY_PATH), search_text=search_text)
 
 
-with st.form("browse"):
-    row = st.columns([3, 2, 2])
-    role_text = row[0].text_input(
-        "Role keywords",
-        value="analyst",
-        help="Matched against the job title. Several words act as alternatives.",
-    )
-    max_age = row[1].selectbox(
-        "Posted within",
-        options=[days for days, _ in AGE_OPTIONS],
-        index=3,
-        format_func=lambda days: dict(AGE_OPTIONS)[days],
-    )
-    city_text = row[2].text_input(
-        "City contains", value="", help="Optional. Leave blank for every city."
-    )
-    submitted = st.form_submit_button(
-        "Fetch postings", type="primary", use_container_width=False
-    )
+# --------------------------------------------------------------------------
+# The agent's current search, editable here and shared with the Full Demo
+# --------------------------------------------------------------------------
 
-st.caption(f"Reading {len(employers)} employer board(s): " + ", ".join(
-    sorted({employer.name for employer in employers})
-))
-
-if not submitted and "browse_done" not in st.session_state:
-    st.info("Choose your filters and select **Fetch postings**.", icon="👆")
-    st.stop()
+with st.form("board_search"):
+    row = st.columns([3, 3, 2])
+    role = row[0].text_input(
+        "Target role",
+        value=query.role,
+        help="Matched against the job title. Each word acts as an alternative.",
+    )
+    location = row[1].text_input(
+        "Location",
+        value=query.location,
+        help="The city and its commuting towns. Leave blank for every city.",
+    )
+    freshness_window = row[2].selectbox(
+        "Freshness",
+        options=list(FRESHNESS_LABELS),
+        index=list(FRESHNESS_LABELS).index(query.freshness_window)
+        if query.freshness_window in FRESHNESS_LABELS
+        else 1,
+        format_func=lambda key: FRESHNESS_LABELS[key],
+    )
+    controls = st.columns([2, 2, 2])
+    anywhere = controls[0].checkbox(
+        "Search every location",
+        value=False,
+        help="Ignore the location above and show every city the boards return.",
+    )
+    submitted = controls[2].form_submit_button(
+        "Run on employer boards", type="primary", use_container_width=True
+    )
 
 if submitted:
-    st.session_state["browse_done"] = True
+    # One agent, one search: what is set here is what the Full Demo opens with.
+    st.session_state.query = SearchQuery(
+        role=role,
+        location=location,
+        work_mode=query.work_mode,
+        query_category=query.query_category,
+        freshness_window=freshness_window,
+        experience_level=query.experience_level,
+    )
+    st.session_state.board_run = True
+    st.rerun()
 
-terms = [word for word in re.split(r"[,\s]+", role_text.strip()) if word]
-pattern = (
-    re.compile("|".join(re.escape(term) for term in terms), re.IGNORECASE)
-    if terms
-    else re.compile(".")
+st.caption(
+    f"Reading {len(employers)} employer board(s): "
+    + ", ".join(sorted({employer.name for employer in employers}))
+)
+
+if not st.session_state.get("board_run"):
+    st.info("Set the search and select **Run on employer boards**.", icon="👆")
+    st.stop()
+
+# --------------------------------------------------------------------------
+# Results
+# --------------------------------------------------------------------------
+
+st.markdown(
+    f"**Searching:** employer job boards · {FRESHNESS_LABELS[query.freshness_window]} · "
+    f"{query.role} · {query.location if not anywhere else 'every location'}"
 )
 
 with st.spinner("Reading employer job boards…"):
-    pool = load_postings(role_text.strip())
+    pool = load_postings(query.role)
 
-city_terms = [part.strip() for part in city_text.split(",") if part.strip()]
-matches = _filter(pool, city_terms, pattern, max_age)
+# The same commuting-town list the Full Demo filters on, so "Houston" means the
+# same place on both screens.
+terms = [] if anywhere else requested_location_terms(query.location)
+matches = _filter(pool, terms, query.role_pattern(), query.max_age_days)
 tree = group_by_country(matches)
 
 summary = st.columns(4)
@@ -109,11 +150,12 @@ summary[2].metric("Cities", sum(len(cities) for cities in tree.values()))
 summary[3].metric("Boards read", len(employers))
 
 if not matches:
+    where = "every location" if anywhere else query.location
     st.info(
-        f"**No recent job postings** matching “{role_text}”"
-        + (f" in “{city_text}”" if city_text else "")
-        + f" from these {len(employers)} employer board(s). "
-        "Widen the age, change the keywords, or add employers to the registry.",
+        f"**No recent job postings** for {query.role} in {where} in the "
+        f"{FRESHNESS_LABELS[query.freshness_window].lower()}, across "
+        f"{len(employers)} employer board(s). Widen the freshness, tick "
+        "**Search every location**, or add employers to the registry.",
         icon="ℹ️",
     )
     st.stop()
