@@ -170,7 +170,7 @@ None of these end the demo. Two arguably improve it.
 | Amber quota banner | Carry on. Every score is identical; only the wording is blunter. *"The model just went offline mid-demo. The scores, the ranking, the guardrail, the approval gate — all still working. That is the point."* |
 | Only two job cards | Expected on cached data with Direct Company Careers. Point at the removal notes: *"it dropped an entry-level posting because we asked for internships, and it told us."* |
 | No results at all | **Freshness** to **Last 7 days**, or **Experience level** to **Any level**. Note that the app never widens a search behind your back. |
-| Everything misbehaving | `DEMO_MODE=cached` in `.env`, restart, use All Public Sources. Instant, offline, every beat still lands. |
+| Everything misbehaving | Set `OFFLINE=true` in `.env`, restart, use All Public Sources. Runs in 0.03s with no network at all, and every beat still lands. See [Running standalone](#running-standalone-with-no-apis-at-all). |
 | Running out of time | Skip 5:30. Jump from the ATS panel straight to the Power BI guardrail and the approval gate. Those two are the demo. |
 
 ---
@@ -187,7 +187,7 @@ None of these end the demo. Two arguably improve it.
 3:45  Five parts. The model is not the agent.
 ```
 
-Run it cached for this version: no waiting, no quota risk.
+Run it with `OFFLINE=true` for this version: no waiting, no quota risk.
 
 ---
 
@@ -201,3 +201,43 @@ Run it cached for this version: no waiting, no quota risk.
 | What does it cost? | Nothing to run. Free tiers for both APIs, and it works with no key at all. |
 | Could it lie on my résumé? | It is built specifically not to. Every claim traces to a line you wrote, and a validator checks each one. |
 | Do I need to know Python? | To run it, no. To change it, a little — the scoring file is about a hundred readable lines. |
+
+---
+
+## Running standalone, with no APIs at all
+
+The most reliable way to present this. One line in `.env`:
+
+```text
+OFFLINE=true
+```
+
+Restart the app. That is the whole procedure. Your keys can stay in the file —
+they are simply not used.
+
+What you get: no network call, no quota to exhaust, no conference wifi to
+depend on, and a **complete run in about 0.03 seconds** instead of ninety.
+
+| Still works | Changes |
+| --- | --- |
+| Both scores, identical numbers | Postings come from saved data, badged 🟡 |
+| Ranking and the top three | Wording is templated, not AI-written |
+| ATS rubric and all six components | No "posted an hour ago" moment |
+| "What to change first" | |
+| The Power BI refusal | |
+| Claim validation | |
+| Approval gate and export | |
+| All seven Learn steps | |
+
+Nothing about the teaching is lost. Every number is identical because no number
+ever came from the model — which is the argument the whole demo is making.
+
+**Set `Job source` to `All Public Sources`** for three cards across LinkedIn,
+Ashby, and Greenhouse. Direct Company Careers yields two from the saved data.
+
+**One line to add if you present this way**, when someone asks whether it is
+really working:
+
+> This is running with the internet switched off. Every score you see was
+> calculated on this laptop. The only thing I gave up was the live search and
+> some nicer phrasing — not one number moved.

@@ -147,6 +147,19 @@ Each step shows the real code it just ran. When one interests you, open the
 matching file in `lessons/` — step 4 is `lessons/step_4_rag.py`. The finished
 agent is assembled in `agent/graph.py`.
 
+## Running with no internet at all
+
+If the wifi is unreliable, or you would rather nothing left your machine, put
+this one line in `.env`:
+
+```text
+OFFLINE=true
+```
+
+No network call is made. Saved job postings are used, all the scoring runs, and
+a complete run takes a fraction of a second. Your keys can stay in the file;
+they are simply not used. Set it back to `false` whenever you want live search.
+
 ## 7. Optional — live mode
 
 Everything already works. Adding free API keys makes the agent search the live
@@ -184,7 +197,7 @@ all run dry you get an amber notice and the app continues on its offline path.
 python -m pytest -q
 ```
 
-Expect `1103 passed`. It makes no network calls and needs no API key. This is
+Expect `1128 passed`. It makes no network calls and needs no API key. This is
 also the fastest way to check you have not broken anything once you start
 editing.
 

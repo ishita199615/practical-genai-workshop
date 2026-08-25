@@ -57,6 +57,17 @@ def _int_env(name: str, default: int) -> int:
         return default
 
 
+def _bool_env(name: str, default: bool) -> bool:
+    """Read a boolean environment variable.
+
+    Accepts the spellings people actually type in a .env file.
+    """
+    raw = (os.getenv(name) or "").strip().lower()
+    if not raw:
+        return default
+    return raw in {"1", "true", "yes", "on"}
+
+
 def _choice_env(name: str, default: str, allowed: set[str]) -> str:
     """Read an environment variable constrained to a fixed set of values."""
     raw = (os.getenv(name) or "").strip().lower()
@@ -83,6 +94,7 @@ class Settings:
     cache_file: str = "data/cached_jobs.json"
     output_dir: str = "output"
     resume_file: str = DEFAULT_RESUME_FILE
+    offline: bool = False
     startup_warnings: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -161,13 +173,28 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
     firecrawl_key = (os.getenv("FIRECRAWL_API_KEY") or "").strip()
     gemini_key = (os.getenv("GEMINI_API_KEY") or "").strip()
     demo_mode = _choice_env("DEMO_MODE", "auto", VALID_DEMO_MODES)
+    offline = _bool_env("OFFLINE", False)
 
-    if not firecrawl_key and demo_mode != "cached":
+    if offline:
+        # One switch for a guaranteed-deterministic run. The keys stay in .env
+        # untouched so the operator can flip back without re-pasting them; they
+        # are simply dropped here, which makes every downstream component treat
+        # the network as unavailable without needing to know about this flag.
+        firecrawl_key = ""
+        gemini_key = ""
+        demo_mode = "cached"
+        warnings.append(
+            "OFFLINE is on. No network call is made: saved postings are used "
+            "and every step runs its deterministic path. Both scores are "
+            "unchanged, because neither ever depended on the model."
+        )
+
+    if not offline and not firecrawl_key and demo_mode != "cached":
         warnings.append(
             "FIRECRAWL_API_KEY is not set. Live retrieval is unavailable; "
             "the demo will use clearly labelled cached results."
         )
-    if not gemini_key:
+    if not offline and not gemini_key:
         warnings.append(
             "GEMINI_API_KEY is not set. Extraction, explanation, drafting, and "
             "claim review will use deterministic offline fallbacks."
@@ -180,7 +207,7 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
             f"Falling back to the sample profile at {DEFAULT_RESUME_FILE}."
         )
         resume_file = DEFAULT_RESUME_FILE
-    elif resume_file != DEFAULT_RESUME_FILE and gemini_key:
+    elif resume_file != DEFAULT_RESUME_FILE and gemini_key and not offline:
         warnings.append(
             "A personal resume is loaded and a Gemini key is configured, so "
             "resume text will be sent to Google's API. Set DEMO_MODE=cached "
@@ -212,5 +239,6 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
         cache_file=(os.getenv("CACHE_FILE") or "data/cached_jobs.json").strip(),
         output_dir=(os.getenv("OUTPUT_DIR") or "output").strip(),
         resume_file=resume_file,
+        offline=offline,
         startup_warnings=tuple(warnings),
     )

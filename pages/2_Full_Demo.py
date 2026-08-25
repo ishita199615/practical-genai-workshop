@@ -314,9 +314,16 @@ if data_mode == "live":
         icon="🟢",
     )
 else:
+    # "unavailable" would be false in standalone mode, where cached data is a
+    # deliberate choice rather than a failure.
+    reason = (
+        "Standalone mode is on, so no network call was made."
+        if settings.offline
+        else "Live retrieval was unavailable."
+    )
     st.warning(
         "🟡 CACHED DEMONSTRATION RESULTS · Originally retrieved at: "
-        f"{format_timestamp(retrieved_at)}. Live retrieval was unavailable. "
+        f"{format_timestamp(retrieved_at)}. {reason} "
         "These are synthetic demonstration records; their links are illustrative "
         "examples, not live employer postings.",
         icon="🟡",

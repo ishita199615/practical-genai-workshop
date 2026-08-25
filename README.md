@@ -175,7 +175,7 @@ tools/               Retrieval, filtering, scoring, validation, export
 services/            The AI model boundary, and multi-model routing
 models/              Typed data structures for every boundary
 data/                Fictional résumé and saved job postings
-tests/               1,110 tests — no network, no API key
+tests/               1,128 tests — no network, no API key
 docs/                Runbook, engineering notes, and the specification
 ```
 
