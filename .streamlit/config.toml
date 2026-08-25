@@ -1,4 +1,8 @@
-[server]
-headless = true
+# Shared defaults for anyone running this project.
+#
+# "headless" is deliberately not set here: students run `streamlit run app.py`
+# and expect their browser to open by itself, which headless mode suppresses.
+# The preview tooling that does need headless passes it on the command line.
+
 [browser]
 gatherUsageStats = false
