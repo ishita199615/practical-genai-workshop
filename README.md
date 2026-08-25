@@ -222,30 +222,6 @@ python -m pytest -q
 
 ---
 
-## For instructors
-
-- **[docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md)** — the eight-minute demo,
-  minute by minute: what to click, what to say, and what to do when a live
-  API misbehaves mid-session
-- **[docs/RUNNING_WITHOUT_PAID_APIS.md](docs/RUNNING_WITHOUT_PAID_APIS.md)** —
-  free and local model options (Ollama needs no key at all), plus where the
-  saved job data actually comes from
-- **[SETUP.md](SETUP.md)** — the student-facing install guide, Windows and macOS
-- **[docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md)** — architecture, the
-  eight-minute demo script, and what testing against the live APIs actually
-  revealed
-- **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** — the full specification this was built from
-- `scripts/make_student_bundle.py` — packages a ZIP for students with secrets
-  excluded and the archive scanned for keys before it is written
-
-A note from the rehearsals, in case it saves you a bad five minutes: free AI tiers
-meter quota **per model**, and some allow only 20 requests a day while one full
-run uses about 13. That is why `LLM_MODELS` in `.env` lists several models — when
-one is exhausted the app falls through to the next automatically. If they all run
-dry, the demo keeps working on its offline path and simply says so.
-
----
-
 ## Licence
 
 [MIT](LICENSE) — take it, change it, teach with it, build on it. Attribution is
