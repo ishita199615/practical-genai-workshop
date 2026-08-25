@@ -1,6 +1,6 @@
 """Step 5 - Tools: deterministic Python, not model guesswork.
 
-Deck slide 18 (the harness and its tools); CLAUDE.md section 15.
+Deck slide 18 (the harness and its tools); SPECIFICATION.md section 15.
 
 The lesson in one line: a language model is a poor calculator. Ask it to rate
 the same resume against the same job twice and it can hand back two different
@@ -26,7 +26,7 @@ from models.match import MatchResult
 from models.resume import ResumeProfile
 from tools.job_scorer import score_job
 
-# The 45/20/15/10/10 weighting from CLAUDE.md section 15, as
+# The 45/20/15/10/10 weighting from SPECIFICATION.md section 15, as
 # (display name, MatchResult field, weight).
 COMPONENT_WEIGHTS: tuple[tuple[str, str, float], ...] = (
     ("Required-skill coverage", "skill_score", 0.45),
@@ -345,7 +345,7 @@ def run(ctx: LessonContext) -> LessonResult:
 
     result.add(
         "table",
-        "Demo Job Match Score - component breakdown (CLAUDE.md section 15)",
+        "Demo Job Match Score - component breakdown (SPECIFICATION.md section 15)",
         component_rows(first),
     )
 
@@ -454,7 +454,7 @@ STEP = LessonStep(
         "makes it repeatable, explainable, and arguable, and leaves the model "
         "to do what it is genuinely good at: putting the result into words."
     ),
-    deck_reference="Slide 18 - the harness and its tools; CLAUDE.md section 15",
+    deck_reference="Slide 18 - the harness and its tools; SPECIFICATION.md section 15",
     code=TEACHING_CODE,
     run=run,
     takeaway=(

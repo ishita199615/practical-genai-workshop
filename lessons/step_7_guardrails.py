@@ -245,7 +245,7 @@ def checks_table(checks: list[dict[str, Any]]) -> list[dict[str, str]]:
 
 
 def power_bi_verdict(resume: ResumeProfile, snapshot: ResumeSnapshot) -> str:
-    """Render the exact learning-gap statement CLAUDE.md section 19 requires."""
+    """Render the exact learning-gap statement SPECIFICATION.md section 19 requires."""
     evidence = find_evidence(canonical_skill(UNSUPPORTED_REQUIREMENT), snapshot)
     found = ", ".join(evidence) if evidence else "None"
     return (
@@ -536,7 +536,7 @@ STEP = LessonStep(
         "rule. Pairing the rule with a human approval gate is what makes an "
         "agent safe enough to put in front of students."
     ),
-    deck_reference="Slide 14 - UHS guardrails (CLAUDE.md sections 19 and 20)",
+    deck_reference="Slide 14 - UHS guardrails (SPECIFICATION.md sections 19 and 20)",
     code=CODE_SNIPPET,
     run=run,
     takeaway=(

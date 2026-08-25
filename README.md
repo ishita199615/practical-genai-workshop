@@ -225,7 +225,7 @@ python -m pytest -q
 - **[docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md)** — architecture, the
   eight-minute demo script, and what testing against the live APIs actually
   revealed
-- **[CLAUDE.md](CLAUDE.md)** — the full specification this was built from
+- **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)** — the full specification this was built from
 - `scripts/make_student_bundle.py` — packages a ZIP for students with secrets
   excluded and the archive scanned for keys before it is written
 

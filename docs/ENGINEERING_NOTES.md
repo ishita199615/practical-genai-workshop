@@ -266,11 +266,11 @@ surprising you on stage.
 ## Live-API findings
 
 Both of these were measured against the live APIs and are the reason two
-`.env` values differ from `CLAUDE.md`.
+`.env` values differ from `SPECIFICATION.md`.
 
 ### `gemini-2.5-flash` is no longer available
 
-The model ID in `CLAUDE.md` §6 returns:
+The model ID in `SPECIFICATION.md` §6 returns:
 
 ```text
 404 NOT_FOUND — This model models/gemini-2.5-flash is no longer available to
@@ -414,11 +414,11 @@ exactly that, so the fix cannot quietly become a hole in the guardrail.
 
 ## Two deliberate deviations from the specification
 
-Both are places where following the letter of `CLAUDE.md` would have broken one
+Both are places where following the letter of `SPECIFICATION.md` would have broken one
 of its own guarantees.
 
 **1. Keyword recommendations target a bullet, not the Skills list.**
-`CLAUDE.md` §16 shows an example recommendation that adds "data visualization"
+`SPECIFICATION.md` §16 shows an example recommendation that adds "data visualization"
 to the Skills section, while §19 requires that the reordered skills always be a
 *subset* of the master resume's skills. Following the example would make the
 validator fail its own check. The recommendation therefore targets the

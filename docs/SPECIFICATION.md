@@ -156,7 +156,7 @@ Create this structure:
 ```text
 cougar-career-agent/
 │
-├── CLAUDE.md
+├── SPECIFICATION.md
 ├── README.md
 ├── app.py
 ├── requirements.txt
