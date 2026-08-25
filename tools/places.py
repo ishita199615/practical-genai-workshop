@@ -177,19 +177,34 @@ class Place:
         return self.country or "Country not stated"
 
 
+# Abbreviations boards use in place of a city name.
+CITY_ABBREVIATIONS = {
+    "sf": "San Francisco", "nyc": "New York", "la": "Los Angeles",
+    "dc": "Washington", "sea": "Seattle", "chi": "Chicago",
+    "kul": "Kuala Lumpur", "tor": "Toronto", "ldn": "London",
+    "yyz": "Toronto", "sgp": "Singapore", "hkg": "Hong Kong",
+}
+
+
+def _expand_abbreviation(city: str) -> str:
+    """Turn a board's shorthand into the city it stands for."""
+    return CITY_ABBREVIATIONS.get(_normalize(city), city)
+
+
 def _city_from_address(remainder: str) -> str:
     """Pick the city out of a hyphenated address tail.
 
     ``"SO-NAILSEA-2 HIGH STREET"`` puts a two-letter region code before the
     city, and a street address after it. The city is the first segment that is
-    neither a short code nor the start of a street number.
+    neither a short code nor the start of a street number — but when every
+    segment is short, the first one is all the board gave.
     """
-    for segment in remainder.split("-"):
-        candidate = segment.strip()
-        if len(candidate) <= 2 or candidate[:1].isdigit():
-            continue
-        return candidate.title()
-    return UNKNOWN
+    segments = [segment.strip() for segment in remainder.split("-")]
+    usable = [seg for seg in segments if seg and not seg[:1].isdigit()]
+    for candidate in usable:
+        if len(candidate) > 2:
+            return _expand_abbreviation(candidate.title())
+    return _expand_abbreviation(usable[0].title()) if usable else UNKNOWN
 
 
 def _normalize(text: str) -> str:
@@ -233,8 +248,17 @@ def parse_place(location: str) -> Place:
     code_match = _CODE_PREFIX_RE.match(text)
     if code_match and code_match.group(1) in COUNTRY_CODES:
         country = COUNTRY_CODES[code_match.group(1)]
-        city = _city_from_address(code_match.group(2))
-        return Place(city=city, country=country, is_remote=is_remote, raw=raw)
+        name = _city_from_address(code_match.group(2))
+        # What follows the country code is usually a city, but "US-Remote" is a
+        # work mode and "US-Georgia" is a state. Classify it rather than assume.
+        kind, value = _classify(name)
+        if _normalize(name) in NON_PLACES:
+            return Place(country=country, is_remote=True, raw=raw)
+        # This slot holds a city, so a name that is both a city and a state
+        # ("New York") is read as the city; only a state-only name is a region.
+        if kind == "region" and _normalize(name) not in CITY_COUNTRY:
+            return Place(region=value, country=country, is_remote=is_remote, raw=raw)
+        return Place(city=name, country=country, is_remote=is_remote, raw=raw)
 
     text = _OFFICE_CODE_RE.sub("", text).strip()
     # "Asia / Hong Kong / Taiwan, Taipei" — the most specific part is last.
@@ -377,6 +401,12 @@ def _expand(part: str) -> list[Place]:
     body = _REMOTE_PREFIX_RE.sub("", text).strip()
     if _REMOTE_BARE_RE.match(body) or _normalize(body) in NON_PLACES:
         return [parse_place(text)]
+    # "US-SF, US-Seattle, US-NYC or US-Remote" is a list of code-prefixed
+    # places, not one address. Each item is read on its own.
+    items = [item.strip() for item in re.split(r"\s*,\s*|\s+or\s+", body) if item.strip()]
+    prefixed = [item for item in items if _CODE_PREFIX_RE.match(item)]
+    if len(prefixed) > 1:
+        return [parse_place(item) for item in prefixed]
     if _CODE_PREFIX_RE.match(body):
         return [parse_place(text)]
     body = _OFFICE_CODE_RE.sub("", body).strip()

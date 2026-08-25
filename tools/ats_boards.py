@@ -418,16 +418,28 @@ def group_by_city(
     so a posting open in both Dublin and London is not listed under London when
     grouped beneath Ireland.
     """
-    grouped: dict[str, list[AtsPosting]] = {}
+    # One board writes "New York", another "New York, NY". They are the same
+    # city, so they are keyed together and shown under the fuller of the two.
+    grouped: dict[tuple[str, str], list[AtsPosting]] = {}
+    labels: dict[tuple[str, str], str] = {}
     for posting in postings:
         places = posting.places
         if within_country is not None:
             places = [
                 place for place in places if place.country_label == within_country
             ] or places
-        for label in dict.fromkeys(place.city_label for place in places):
-            grouped.setdefault(label, []).append(posting)
-    return _sorted_groups(grouped)
+        seen_keys: set[tuple[str, str]] = set()
+        for place in places:
+            key = (place.city.strip().lower(), place.country_label)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            grouped.setdefault(key, []).append(posting)
+            best = labels.get(key, "")
+            if len(place.city_label) > len(best):
+                labels[key] = place.city_label
+    named = {labels[key]: members for key, members in grouped.items()}
+    return _sorted_groups(named)
 
 
 def group_by_country(

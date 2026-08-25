@@ -101,6 +101,38 @@ class TestAwkwardFormats:
             assert place.city == raw and place.country == raw
 
 
+class TestCodePrefixedLists:
+    """Some boards list places as "US-SF, US-NYC or US-Remote"."""
+
+    def test_a_list_becomes_one_place_each(self):
+        labels = [
+            p.city_label
+            for p in parse_places("US-SF, US-Seattle, US-NYC, US-Chicago")
+        ]
+        assert labels == ["San Francisco", "Seattle", "New York", "Chicago"]
+
+    def test_a_remote_item_names_no_city(self):
+        [place] = [p for p in parse_places("US-SF, US-Remote")][1:]
+        assert place.is_remote and not place.city
+
+    def test_a_state_only_name_is_a_region_not_a_city(self):
+        [place] = [p for p in parse_places("US-SF, US-Georgia")][1:]
+        assert place.city == "" and place.region == "GA"
+
+    def test_a_name_that_is_both_city_and_state_reads_as_the_city(self):
+        [place] = parse_places("US-NYC")
+        assert place.city == "New York"
+
+    @pytest.mark.parametrize(
+        "raw,city",
+        [("MY-KUL-KUALA LUMPUR", "Kuala Lumpur"),
+         ("GB-SO-NAILSEA-2 HIGH STREET", "Nailsea"),
+         ("MX-DF-MEXICO CITY-AVENIDA", "Mexico City")],
+    )
+    def test_addresses_yield_the_city_not_a_code(self, raw, city):
+        assert parse_place(raw).city == city
+
+
 class TestMultipleLocations:
     """One posting can be open in several places."""
 
