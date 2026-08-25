@@ -175,8 +175,8 @@ tools/               Retrieval, filtering, scoring, validation, export
 services/            The AI model boundary, and multi-model routing
 models/              Typed data structures for every boundary
 data/                Fictional résumé and saved job postings
-tests/               1,103 tests — no network, no API key
-docs/                Engineering notes and live-API findings
+tests/               1,110 tests — no network, no API key
+docs/                Runbook, engineering notes, and the specification
 ```
 
 Built with Streamlit, LangGraph, Pydantic, scikit-learn, and Google Gemini.
