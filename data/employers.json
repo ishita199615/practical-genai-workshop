@@ -1,0 +1,12 @@
+[
+  {"name": "Chevron", "ats": "workday", "slug": "chevron", "site": "jobs", "host": "wd5"},
+  {"name": "Baker Hughes", "ats": "workday", "slug": "bakerhughes", "site": "BakerHughes", "host": "wd5"},
+  {"name": "Samsara", "ats": "greenhouse", "slug": "samsara"},
+  {"name": "Stripe", "ats": "greenhouse", "slug": "stripe"},
+  {"name": "Cloudflare", "ats": "greenhouse", "slug": "cloudflare"},
+  {"name": "Databricks", "ats": "greenhouse", "slug": "databricks"},
+  {"name": "GitLab", "ats": "greenhouse", "slug": "gitlab"},
+  {"name": "Flexport", "ats": "greenhouse", "slug": "flexport"},
+  {"name": "Binance", "ats": "lever", "slug": "binance"},
+  {"name": "Plaid", "ats": "lever", "slug": "plaid"}
+]
