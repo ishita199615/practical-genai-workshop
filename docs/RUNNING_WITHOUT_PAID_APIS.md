@@ -1,7 +1,6 @@
 # Running it without paid APIs
 
-Two questions students ask, answered separately because they are different
-problems:
+Two questions:
 
 1. [I want the AI parts, but cheaper or free](#1-cheaper-model-options)
 2. [I want to run with no APIs at all](#2-no-apis-at-all) — and *where does the
