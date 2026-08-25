@@ -49,7 +49,8 @@ Waiting for human approval.
 
 ---
 
-## 2. Core teaching message
+## 2. Core Lesson to learn 
+### The reason that makes a difference between an ordinary agent vs this agent:
 
 The UI and code should make this separation obvious:
 
@@ -81,7 +82,7 @@ The language model is only one component of the agent. The agent also includes t
 - Maximum eight search results.
 - Top three ranked results shown.
 - Freshness choices are **Last 1 hour**, **Last 24 hours**, **Last 3 days**, and **Last 7 days**; the live-demo default is Last 24 hours for reliability.
-- A **Job source / query category** selector with: All Public Sources, LinkedIn, Indeed, Google Jobs / Web, and Direct Company Careers.
+- A **Job source/query category** selector with: All Public Sources, LinkedIn, Indeed, Google Jobs / Web, and Direct Company Careers.
 - Direct Company Careers is the default category for live-demo reliability.
 - Visible query category, detected source category, requested freshness window, posting timestamp/date evidence, and retrieval timestamp for every result.
 - A validated clickable **Open job posting ↗** button for every displayed job, backed by the final canonical public job URL.
