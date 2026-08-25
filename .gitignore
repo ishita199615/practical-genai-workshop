@@ -15,3 +15,6 @@ practical-genai-workshop-offline.zip
 # Personal resumes. The template is tracked; anything you fill in is not.
 data/my_resume*.json
 !data/my_resume.template.json
+
+# A captured cache holds real employers posting text; keep it local.
+data/cached_jobs.local.json

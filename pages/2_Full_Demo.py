@@ -321,11 +321,19 @@ else:
         if settings.offline
         else "Live retrieval was unavailable."
     )
+    # A captured cache holds real postings with working links. Calling those
+    # "illustrative examples" would be as untrue as calling the shipped
+    # fictional records real.
+    provenance = (
+        "These are synthetic demonstration records; their links are "
+        "illustrative examples, not live employer postings."
+        if result.get("cache_is_synthetic", True)
+        else "These are real postings captured in an earlier live run, so the "
+        "links are genuine but the postings may since have closed."
+    )
     st.warning(
         "🟡 CACHED DEMONSTRATION RESULTS · Originally retrieved at: "
-        f"{format_timestamp(retrieved_at)}. {reason} "
-        "These are synthetic demonstration records; their links are illustrative "
-        "examples, not live employer postings.",
+        f"{format_timestamp(retrieved_at)}. {reason} {provenance}",
         icon="🟡",
     )
 

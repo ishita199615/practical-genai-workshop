@@ -175,7 +175,7 @@ tools/               Retrieval, filtering, scoring, validation, export
 services/            The AI model boundary, and multi-model routing
 models/              Typed data structures for every boundary
 data/                Fictional résumé and saved job postings
-tests/               1,128 tests — no network, no API key
+tests/               1,146 tests — no network, no API key
 docs/                Runbook, engineering notes, and the specification
 ```
 
@@ -227,6 +227,9 @@ python -m pytest -q
 - **[docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md)** — the eight-minute demo,
   minute by minute: what to click, what to say, and what to do when a live
   API misbehaves mid-session
+- **[docs/RUNNING_WITHOUT_PAID_APIS.md](docs/RUNNING_WITHOUT_PAID_APIS.md)** —
+  free and local model options (Ollama needs no key at all), plus where the
+  saved job data actually comes from
 - **[SETUP.md](SETUP.md)** — the student-facing install guide, Windows and macOS
 - **[docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md)** — architecture, the
   eight-minute demo script, and what testing against the live APIs actually

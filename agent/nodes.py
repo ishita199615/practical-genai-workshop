@@ -205,6 +205,7 @@ def search_current_jobs(state: CareerAgentState, deps: AgentDeps) -> dict[str, A
     updates: dict[str, Any] = {}
     warnings: list[str] = []
     raw_dicts: list[dict[str, Any]] = []
+    cache_synthetic = True
     time_filter_applied = True
     data_mode = "cached"
 
@@ -264,7 +265,7 @@ def search_current_jobs(state: CareerAgentState, deps: AgentDeps) -> dict[str, A
                 ],
                 "progress_events": [event("Firecrawl searched public job pages", "warn")],
             }
-        raw_jobs, cache_warnings, cached_at = _load_cached_jobs(
+        raw_jobs, cache_warnings, cached_at, cache_synthetic = _load_cached_jobs(
             deps, query_category, freshness_window
         )
         warnings.extend(cache_warnings)
@@ -278,6 +279,9 @@ def search_current_jobs(state: CareerAgentState, deps: AgentDeps) -> dict[str, A
         {
             "raw_jobs": raw_jobs,
             "data_mode": data_mode,
+            "cache_is_synthetic": (
+                cache_synthetic if data_mode == "cached" else False
+            ),
             "retrieval_timestamp": now,
             "warnings": warnings,
             "progress_events": [
@@ -341,17 +345,19 @@ def _retrieval_message(detail: str) -> str:
 
 def _load_cached_jobs(
     deps: AgentDeps, query_category: str, freshness_window: str
-) -> tuple[list[RawJobResult], list[str], datetime | None]:
+) -> tuple[list[RawJobResult], list[str], datetime | None, bool]:
     """Load clearly-labelled cached demonstration results.
 
-    Returns the records, any warnings, and the timestamp of the run that
-    originally produced the cache.
+    Returns the records, any warnings, the timestamp of the run that originally
+    produced the cache, and whether that cache is the shipped fictional data or
+    a real captured run. The interface must not call a genuine posting
+    synthetic, so the flag travels with the records.
     """
     try:
         payload = load_cache(deps.settings.cache_path)
     except Exception as exc:  # noqa: BLE001 - user-facing failure
         logger.error("Cache load failed: %s", type(exc).__name__)
-        return [], ["Cached demonstration data could not be loaded."], None
+        return [], ["Cached demonstration data could not be loaded."], None, True
 
     entries = cached_raw_results(
         payload, query_category=query_category, freshness_window=freshness_window
@@ -371,7 +377,7 @@ def _load_cached_jobs(
         "Live retrieval was unavailable. These are cached demonstration results, "
         f"originally retrieved at {retrieved_at.isoformat()}."
     ]
-    return raw_jobs, warnings, retrieved_at
+    return raw_jobs, warnings, retrieved_at, bool(payload.get("synthetic", True))
 
 
 def _parse_iso(value: Any) -> datetime | None:

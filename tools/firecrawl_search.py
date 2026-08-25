@@ -109,6 +109,21 @@ GENERIC_PATH_MARKERS: tuple[str, ...] = (
     "/search",
     "/browse",
     "/q-",
+    # Glassdoor search results, e.g. /Job/remote-data-analyst-jobs-SRCH_IL.0,6.htm
+    "srch_",
+    "/explore/",
+)
+
+# A path whose last segment is a bare plural like "…-analyst-jobs" is a result
+# list, not one opening. Checked as a suffix so a real posting ending in a job
+# id or slug — "/jobs/data-analyst-intern-4410021" — is untouched.
+GENERIC_PATH_SUFFIXES: tuple[str, ...] = (
+    "-jobs",
+    "-jobs.html",
+    "-jobs.htm",
+    "-internships",
+    "-vacancies",
+    "-openings",
 )
 
 GENERIC_EXACT_PATHS: frozenset[str] = frozenset(
@@ -379,6 +394,8 @@ def looks_like_generic_listing(url: str) -> bool:
     if path in GENERIC_EXACT_PATHS:
         return True
     if any(marker in path for marker in GENERIC_PATH_MARKERS):
+        return True
+    if any(path.endswith(suffix) for suffix in GENERIC_PATH_SUFFIXES):
         return True
     return False
 

@@ -69,6 +69,8 @@ class CareerAgentState(TypedDict, total=False):
 
     # Run metadata
     data_mode: str
+    # True for the shipped fictional cache, False for a real captured run.
+    cache_is_synthetic: bool
     retrieval_timestamp: datetime | None
     approved_at: datetime | None
     output_files: list[str]

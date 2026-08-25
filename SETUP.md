@@ -197,7 +197,7 @@ all run dry you get an amber notice and the app continues on its offline path.
 python -m pytest -q
 ```
 
-Expect `1128 passed`. It makes no network calls and needs no API key. This is
+Expect `1146 passed`. It makes no network calls and needs no API key. This is
 also the fastest way to check you have not broken anything once you start
 editing.
 
