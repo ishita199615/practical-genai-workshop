@@ -34,6 +34,7 @@ class CareerAgentState(TypedDict, total=False):
     role: str
     location: str
     work_mode: str
+    employment_type: str
     freshness_window: FreshnessWindow
     freshness_tbs: str
     freshness_cutoff_utc: datetime

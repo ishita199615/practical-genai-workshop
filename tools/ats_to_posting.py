@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 from models.job import ExperienceLevel, FreshnessWindow, JobPosting
 from tools.ats_boards import AtsPosting
+from tools.employment_type import detect_employment_type
 from tools.experience_level import detect_experience_level
 from tools.firecrawl_search import (
     canonicalize_job_url,
@@ -86,6 +87,9 @@ def to_job_posting(
         freshness_status = "verified_recent"
 
     level = detect_experience_level(posting.title, description, None)
+    engagement = detect_employment_type(
+        posting.title, description, stated=posting.commitment or None
+    )
 
     return JobPosting(
         job_id=make_job_id(canonical or posting.title),
@@ -118,6 +122,8 @@ def to_job_posting(
         requested_experience_level=requested_experience_level,
         experience_level=level.level,
         experience_level_evidence=level.evidence,
+        employment_type=engagement.employment_type,
+        employment_type_evidence=engagement.evidence,
     )
 
 

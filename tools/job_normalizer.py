@@ -25,6 +25,7 @@ from models.job import (
     RawJobResult,
 )
 from prompts import render_prompt
+from tools.employment_type import detect_employment_type
 from tools.experience_level import detect_experience_level
 from tools.firecrawl_search import (
     canonicalize_job_url,
@@ -473,6 +474,12 @@ def normalize_job(
         title, description, extracted.minimum_experience_years
     )
 
+    # The board may state the type outright; otherwise it is read off the page.
+    engagement = detect_employment_type(
+        title, description, stated=extracted.employment_type
+        if extracted.employment_type != "unknown" else None
+    )
+
     posting = JobPosting(
         job_id=make_job_id(canonical),
         title=title or "Untitled posting",
@@ -509,6 +516,8 @@ def normalize_job(
         requested_experience_level=requested_experience_level,
         experience_level=level.level,
         experience_level_evidence=level.evidence,
+        employment_type=engagement.employment_type,
+        employment_type_evidence=engagement.evidence,
     )
     if not extracted.is_specific_opening or looks_like_generic_listing(canonical):
         return None, f"Removed a general listing page from {posting.source_label}."

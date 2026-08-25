@@ -67,6 +67,9 @@ class AtsPosting:
     posted_at: datetime | None = None
     posted_text: str = ""
     work_mode: str = "unknown"
+    # What the board called the engagement, verbatim: "Full-time: Remote",
+    # "Contract", "Intern". Empty when the board did not say.
+    commitment: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -171,6 +174,7 @@ def read_lever(employer: Employer) -> list[AtsPosting]:
                 posted_text=str(created or ""),
                 work_mode=_lever_work_mode(categories.get("commitment") or "",
                                            job.get("workplaceType") or ""),
+                commitment=categories.get("commitment") or "",
             )
         )
     return postings
@@ -197,6 +201,7 @@ def read_ashby(employer: Employer) -> list[AtsPosting]:
                 posted_at=_parse_iso(job.get("publishedAt")),
                 posted_text=job.get("publishedAt") or "",
                 work_mode="remote" if job.get("isRemote") else "unknown",
+                commitment=job.get("employmentType") or "",
             )
         )
     return postings
@@ -244,6 +249,7 @@ def read_workday(employer: Employer, search_text: str = "") -> list[AtsPosting]:
                 description=description,
                 posted_at=posted_at,
                 posted_text=start_date or listed_text,
+                commitment=detail.get("timeType") or "",
             )
         )
     return postings

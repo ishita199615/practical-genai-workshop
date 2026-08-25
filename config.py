@@ -32,6 +32,8 @@ VALID_FRESHNESS_WINDOWS = {
     "last_24_hours",
     "last_3_days",
     "last_7_days",
+    "last_14_days",
+    "last_30_days",
 }
 # "unknown" is a real choice here: it means the user is not filtering by
 # seniority at all, which is the behaviour the demo had before levels existed.

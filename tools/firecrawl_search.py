@@ -139,6 +139,8 @@ FRESHNESS_HOURS: dict[str, float] = {
     "last_24_hours": 24.0,
     "last_3_days": 72.0,
     "last_7_days": 168.0,
+    "last_14_days": 336.0,
+    "last_30_days": 720.0,
 }
 
 
@@ -233,7 +235,8 @@ def domain_filter_for(query_category: SourceCategory) -> list[str]:
 def freshness_to_tbs(window: FreshnessWindow, now: datetime | None = None) -> str:
     """Translate a freshness window into a Firecrawl ``tbs`` value.
 
-    ``last_3_days`` uses a custom date range generated at runtime in UTC.
+    Windows a search engine names directly use its own shorthand; the rest use a
+    custom date range generated at runtime in UTC.
     """
     if window == "last_hour":
         return "sbd:1,qdr:h"
@@ -241,15 +244,25 @@ def freshness_to_tbs(window: FreshnessWindow, now: datetime | None = None) -> st
         return "sbd:1,qdr:d"
     if window == "last_7_days":
         return "sbd:1,qdr:w"
-    if window == "last_3_days":
-        current = now or datetime.now(timezone.utc)
-        start = current - timedelta(days=3)
-        return (
-            "sbd:1,cdr:1,"
-            f"cd_min:{start.strftime('%m/%d/%Y')},"
-            f"cd_max:{current.strftime('%m/%d/%Y')}"
-        )
-    raise ValueError(f"Unknown freshness window: {window}")
+    if window == "last_30_days":
+        return "sbd:1,qdr:m"
+    days = CUSTOM_RANGE_DAYS.get(window)
+    if days is None:
+        raise ValueError(f"Unknown freshness window: {window}")
+    current = now or datetime.now(timezone.utc)
+    start = current - timedelta(days=days)
+    return (
+        "sbd:1,cdr:1,"
+        f"cd_min:{start.strftime('%m/%d/%Y')},"
+        f"cd_max:{current.strftime('%m/%d/%Y')}"
+    )
+
+
+# Windows with no shorthand of their own, expressed as an explicit date range.
+CUSTOM_RANGE_DAYS: dict[str, int] = {
+    "last_3_days": 3,
+    "last_14_days": 14,
+}
 
 
 def freshness_cutoff(window: FreshnessWindow, now: datetime) -> datetime:

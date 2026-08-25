@@ -23,6 +23,8 @@ FRESHNESS_DAYS: dict[str, float] = {
     "last_24_hours": 1.0,
     "last_3_days": 3.0,
     "last_7_days": 7.0,
+    "last_14_days": 14.0,
+    "last_30_days": 30.0,
 }
 
 DEFAULT_ROLE = "Data Analyst Intern"
@@ -39,6 +41,7 @@ class SearchQuery:
     query_category: str = "company_careers"
     freshness_window: str = "last_24_hours"
     experience_level: str = "internship"
+    employment_type: str = "any"
 
     # ---- derived views, one per route -----------------------------------
 
@@ -89,6 +92,7 @@ class SearchQuery:
             "query_category": self.query_category,
             "freshness_window": self.freshness_window,
             "experience_level": self.experience_level,
+            "employment_type": self.employment_type,
         }
 
     @classmethod
@@ -105,7 +109,7 @@ class SearchQuery:
             field: data.get(field)
             for field in (
                 "role", "location", "work_mode", "query_category",
-                "freshness_window", "experience_level",
+                "freshness_window", "experience_level", "employment_type",
             )
         }
         usable = {

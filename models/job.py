@@ -22,6 +22,8 @@ FreshnessWindow = Literal[
     "last_24_hours",
     "last_3_days",
     "last_7_days",
+    "last_14_days",
+    "last_30_days",
 ]
 
 FreshnessEvidence = Literal[
@@ -70,6 +72,26 @@ ExperienceLevel = Literal[
     "manager",
     "unknown",
 ]
+
+# How the job is engaged, as distinct from how senior it is or where it is
+# worked. "unknown" is a real answer here too: plenty of postings never say.
+EmploymentType = Literal[
+    "full_time",
+    "part_time",
+    "contract",
+    "temporary",
+    "internship",
+    "unknown",
+]
+
+EMPLOYMENT_TYPE_LABELS: dict[str, str] = {
+    "full_time": "Full-time",
+    "part_time": "Part-time",
+    "contract": "Contract",
+    "temporary": "Temporary / Seasonal",
+    "internship": "Internship",
+    "unknown": "Type not stated",
+}
 
 EXPERIENCE_LEVEL_LABELS: dict[str, str] = {
     "internship": "Internship",
@@ -124,6 +146,7 @@ class ExtractedJobFields(BaseModel):
     company: str | None = None
     location: str | None = None
     work_mode: WorkMode = "unknown"
+    employment_type: EmploymentType = "unknown"
     description: str | None = None
     required_skills: list[str] = Field(default_factory=list)
     preferred_skills: list[str] = Field(default_factory=list)
@@ -170,6 +193,12 @@ class JobPosting(BaseModel):
     requested_experience_level: ExperienceLevel = "unknown"
     experience_level: ExperienceLevel = "unknown"
     experience_level_evidence: str | None = None
+    employment_type: EmploymentType = "unknown"
+    employment_type_evidence: str | None = None
+
+    def employment_type_label(self) -> str:
+        """Return the human-readable employment type detected on this posting."""
+        return EMPLOYMENT_TYPE_LABELS[self.employment_type]
 
     def experience_level_label(self) -> str:
         """Return the human-readable seniority detected on this posting."""
@@ -196,6 +225,8 @@ FRESHNESS_LABELS: dict[str, str] = {
     "last_24_hours": "Last 24 hours",
     "last_3_days": "Last 3 days",
     "last_7_days": "Last 7 days",
+    "last_14_days": "Last 14 days",
+    "last_30_days": "Last 30 days",
 }
 
 SOURCE_CATEGORY_LABELS: dict[str, str] = {

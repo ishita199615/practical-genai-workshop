@@ -20,6 +20,7 @@ from agent.graph import build_deps, build_graph
 from config import load_settings
 from models.ats import ATS_LONG_DISCLAIMER, BAND_LABELS, AtsAssessment, AtsRecommendation
 from models.job import (
+    EMPLOYMENT_TYPE_LABELS,
     EXPERIENCE_LEVEL_LABELS,
     FRESHNESS_LABELS,
     SOURCE_CATEGORY_LABELS,
@@ -47,6 +48,8 @@ FRESHNESS_OPTIONS: list[tuple[str, str]] = [
     ("last_24_hours", "Last 24 hours"),
     ("last_3_days", "Last 3 days"),
     ("last_7_days", "Last 7 days"),
+    ("last_14_days", "Last 14 days"),
+    ("last_30_days", "Last 30 days"),
 ]
 
 # Seniority order, most junior first, with an explicit opt-out at the end.
@@ -70,6 +73,18 @@ WORK_MODE_OPTIONS: list[tuple[str, str]] = [
     ("remote", "Remote"),
     ("hybrid", "Hybrid"),
     ("onsite", "On-site"),
+]
+
+# How the job is engaged. "Any type" is the request-side reading of unknown:
+# the user is not filtering, which is not the same as a posting that never
+# stated one ("Type not stated").
+EMPLOYMENT_TYPE_OPTIONS: list[tuple[str, str]] = [
+    ("any", "Any type"),
+    ("full_time", EMPLOYMENT_TYPE_LABELS["full_time"]),
+    ("part_time", EMPLOYMENT_TYPE_LABELS["part_time"]),
+    ("contract", EMPLOYMENT_TYPE_LABELS["contract"]),
+    ("temporary", EMPLOYMENT_TYPE_LABELS["temporary"]),
+    ("internship", EMPLOYMENT_TYPE_LABELS["internship"]),
 ]
 
 FRESHNESS_EVIDENCE_BADGE: dict[str, str] = {
@@ -303,6 +318,17 @@ with st.form("search_preferences"):
     )
 
     row_three = st.columns([2, 2, 2])
+    employment_type = row_three[0].selectbox(
+        "Employment type",
+        options=[key for key, _ in EMPLOYMENT_TYPE_OPTIONS],
+        index=value_index(EMPLOYMENT_TYPE_OPTIONS, query.employment_type),
+        format_func=lambda key: label_for(EMPLOYMENT_TYPE_OPTIONS, key),
+        help=(
+            "This filters results. Each posting's type is read from the "
+            "posting itself, so one that does not state a type stays "
+            "'Type not stated' and is never dropped."
+        ),
+    )
     submitted = row_three[2].form_submit_button(
         "Run Career Agent", type="primary", use_container_width=True
     )
@@ -316,6 +342,7 @@ if submitted:
             "query_category": query_category,
             "freshness_window": freshness_window,
             "experience_level": experience_level,
+            "employment_type": employment_type,
         }
     )
     st.rerun()
@@ -467,10 +494,22 @@ def render_source_evidence(job: JobPosting) -> None:
     )
 
 
+def employment_type_badge(job: JobPosting) -> str:
+    """Return the badge for the employment type read off a posting.
+
+    A posting that never states one reads "Type not stated". What the user
+    filtered on is not shown here: asking for full-time roles is not evidence
+    that this posting is one.
+    """
+    icon = "❔" if job.employment_type == "unknown" else "📄"
+    return f"{icon} {job.employment_type_label()}"
+
+
 def render_level_badge(job: JobPosting) -> None:
-    """Render the compact level line carried by every job card."""
+    """Render the compact level and type line carried by every job card."""
     st.caption(
-        f"{experience_level_badge(job)} · Requested level: "
+        f"{experience_level_badge(job)} · {employment_type_badge(job)} · "
+        f"Requested level: "
         f"{label_for(EXPERIENCE_OPTIONS, job.requested_experience_level)}"
     )
 

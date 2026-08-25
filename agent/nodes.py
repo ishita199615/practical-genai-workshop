@@ -542,6 +542,7 @@ def filter_and_deduplicate_jobs(
         normalized,
         requested_experience_level=experience_level,
         requested_location=state.get("location") or "",
+        requested_employment_type=state.get("employment_type") or "any",
     )
     updates: dict[str, Any] = {
         "filtered_jobs": outcome.kept,

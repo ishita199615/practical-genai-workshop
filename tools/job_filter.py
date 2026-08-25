@@ -9,7 +9,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from models.job import EXPERIENCE_LEVEL_LABELS, ExperienceLevel, JobPosting
+from models.job import (
+    EMPLOYMENT_TYPE_LABELS,
+    EXPERIENCE_LEVEL_LABELS,
+    ExperienceLevel,
+    JobPosting,
+)
+from tools.employment_type import types_conflict
 from tools.experience_level import levels_conflict
 from tools.firecrawl_search import (
     US_STATE_NAMES,
@@ -191,6 +197,7 @@ def rejection_reason(
     min_description_chars: int,
     requested_experience_level: ExperienceLevel = "unknown",
     requested_location: str = "",
+    requested_employment_type: str = "any",
 ) -> str | None:
     """Return why a posting must be rejected, or ``None`` when it is usable.
 
@@ -199,9 +206,9 @@ def rejection_reason(
     posting that never states a level is kept: there is no evidence to drop it
     on, and dropping it would hide real openings. The default disables the rule.
 
-    ``requested_location`` follows the same shape: only a posting that names a
-    place other than the one asked for is dropped. Both defaults disable their
-    rule.
+    ``requested_location`` and ``requested_employment_type`` follow the same
+    shape: only a posting that states something other than what was asked for is
+    dropped. Every default disables its own rule.
     """
     if job.is_closed:
         return f"{job.title} at {job.company} is closed or no longer accepting applications."
@@ -226,6 +233,11 @@ def rejection_reason(
             f"{EXPERIENCE_LEVEL_LABELS[job.experience_level]} posting removed: "
             f"you searched {EXPERIENCE_LEVEL_LABELS[requested_experience_level]}."
         )
+    if types_conflict(requested_employment_type, job.employment_type):
+        return (
+            f"{EMPLOYMENT_TYPE_LABELS[job.employment_type]} posting removed: "
+            f"you searched {EMPLOYMENT_TYPE_LABELS.get(requested_employment_type, requested_employment_type)}."
+        )
     if location_conflict(requested_location, job):
         return (
             f"'{job.title}' in {job.location} removed: "
@@ -240,6 +252,7 @@ def filter_and_deduplicate(
     min_description_chars: int = MIN_DESCRIPTION_CHARS,
     requested_experience_level: ExperienceLevel = "unknown",
     requested_location: str = "",
+    requested_employment_type: str = "any",
 ) -> FilterOutcome:
     """Apply every rejection rule, then remove duplicates.
 
@@ -260,6 +273,7 @@ def filter_and_deduplicate(
             min_description_chars=min_description_chars,
             requested_experience_level=requested_experience_level,
             requested_location=requested_location,
+            requested_employment_type=requested_employment_type,
         )
         if reason:
             outcome.removed.append((job.job_id, reason))
