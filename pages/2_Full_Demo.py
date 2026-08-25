@@ -550,7 +550,14 @@ jobs_by_id: dict[str, JobPosting] = {
 ranked: list[MatchResult] = result.get("ranked_matches", [])
 
 if not ranked:
-    st.info("No ranked jobs are available for this search.", icon="ℹ️")
+    st.info(
+        f"**No recent job postings** for {params['role']} in "
+        f"{params['location']} in the "
+        f"{label_for(FRESHNESS_OPTIONS, params['freshness_window']).lower()}. "
+        "The agent found pages, but none were a real posting in that area — "
+        "see **Agent activity** above for what was removed and why.",
+        icon="ℹ️",
+    )
 else:
     for rank, match in enumerate(ranked, start=1):
         job = jobs_by_id.get(match.job_id)

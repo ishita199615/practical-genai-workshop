@@ -100,6 +100,65 @@ def clean_description(markdown: str | None, max_chars: int = 20000) -> str:
     return text
 
 
+# Applicant-tracking systems print a header above the posting: the title, the
+# location, a department / employment-type breadcrumb, and an apply link. The
+# card already shows all of that as its own fields, so repeating it in the
+# excerpt costs the reader the two lines that could have shown the actual job.
+_STRONG_CHROME = (
+    r"apply\s+(?:for\s+this\s+job|now|here)|back\s+to\s+jobs|view\s+all\s+jobs"
+    r"|share\s+this\s+job"
+)
+_APPLY_CHROME_RE = re.compile(rf"^(?:{_STRONG_CHROME})\b", re.IGNORECASE)
+
+# Employment type and work mode are header crumbs only when nothing but more
+# header follows. "Remote work is supported" is the posting talking, not chrome,
+# so these are stripped solely before a separator, the end, or strong chrome.
+_WEAK_CRUMB_RE = re.compile(
+    r"^(?:full[-\s]?time|part[-\s]?time|regular|permanent|contract|temporary"
+    r"|internship|on[-\s]?site|onsite|remote|hybrid)\b"
+    rf"(?=\s*(?:[/|·•,;:\-–—]|$|(?:{_STRONG_CHROME})\b))",
+    re.IGNORECASE,
+)
+_SEPARATOR_RE = re.compile(r"^[\s/|·•,;:\-–—]+")
+# One breadcrumb crumb: a short label with no sentence punctuation, before a "/".
+_CRUMB_RE = re.compile(r"^[A-Za-z][\w &+'-]{0,30}(?=\s*/)")
+
+
+def strip_card_header(description: str, *, title: str, location: str | None) -> str:
+    """Drop the leading page header the job card already displays above it.
+
+    Only the front of the text is touched, and only fragments that are known
+    chrome or that repeat a field shown on the card. The posting itself is never
+    edited: if stripping would eat most of the text, the original is returned.
+    """
+    flat = " ".join(description.split())
+    remainder = flat
+    known = [value for value in (title, location) if value and value.strip()]
+
+    for _ in range(24):  # bounded: each pass removes at most one fragment
+        before = remainder
+        remainder = _SEPARATOR_RE.sub("", remainder)
+        for value in known:
+            if remainder.lower().startswith(value.strip().lower()):
+                remainder = remainder[len(value.strip()) :]
+                break
+        else:
+            for pattern in (_APPLY_CHROME_RE, _WEAK_CRUMB_RE, _CRUMB_RE):
+                match = pattern.match(remainder)
+                if match:
+                    remainder = remainder[match.end() :]
+                    break
+        if remainder == before:
+            break
+
+    remainder = _SEPARATOR_RE.sub("", remainder)
+    # A header is a preamble, not the posting. Losing most of the text means the
+    # heuristic overreached, so keep what the source actually said.
+    if len(remainder) < len(flat) * 0.4:
+        return flat
+    return remainder
+
+
 def make_excerpt(description: str, limit: int = EXCERPT_CHARS) -> str:
     """Build a short, deterministic 2–3 line card excerpt.
 
@@ -422,7 +481,11 @@ def normalize_job(
         source_category=category,
         source_label=label,
         description=description,
-        description_excerpt=make_excerpt(description),
+        description_excerpt=make_excerpt(
+            strip_card_header(
+                description, title=title, location=extracted.location
+            )
+        ),
         required_skills=[skill.strip() for skill in extracted.required_skills if skill.strip()],
         preferred_skills=[skill.strip() for skill in extracted.preferred_skills if skill.strip()],
         minimum_experience_years=extracted.minimum_experience_years,

@@ -101,20 +101,45 @@ def normalize_location(location: str | None) -> str:
     return _NON_ALNUM_RE.sub(" ", (location or "").strip().lower()).strip()
 
 
+# Towns that share a commuting area with a big city. A job in Sugar Land is a
+# Houston job to anyone driving to it; a job in Austin is not, though both are
+# in Texas. Extend this for your own metro rather than widening to the state.
+METRO_NEIGHBOURS: dict[str, tuple[str, ...]] = {
+    "houston": (
+        "sugar land",
+        "the woodlands",
+        "katy",
+        "pearland",
+        "pasadena",
+        "spring",
+        "cypress",
+        "bellaire",
+        "stafford",
+        "missouri city",
+        "league city",
+        "friendswood",
+        "humble",
+        "baytown",
+        "conroe",
+        "greater houston",
+    ),
+}
+
+
 def requested_location_terms(requested_location: str) -> list[str]:
     """Return the place names a posting may name to satisfy the request.
 
-    ``"Houston, TX"`` yields ``["houston", "tx", "texas"]``, so a posting in
-    Dallas, Texas still counts as the requested region while one in Riyadh does
-    not.
+    ``"Houston, TX"`` yields Houston and its commuting towns. The state is
+    deliberately *not* included: "TX" alone would make Austin, Dallas, and El
+    Paso all count as Houston, which is not what someone searching a city means.
     """
     parts = [part.strip() for part in (requested_location or "").split(",")]
-    terms = [normalize_location(part) for part in parts if part.strip()]
-    if len(parts) > 1:
-        full_name = US_STATE_NAMES.get(parts[-1].strip().upper())
-        if full_name:
-            terms.append(normalize_location(full_name))
-    return [term for term in terms if term]
+    if not parts or not parts[0]:
+        return []
+    city = normalize_location(parts[0])
+    if not city:
+        return []
+    return [city, *METRO_NEIGHBOURS.get(city, ())]
 
 
 def location_conflict(requested_location: str, job: JobPosting) -> bool:

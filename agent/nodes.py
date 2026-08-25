@@ -51,7 +51,7 @@ from tools.firecrawl_search import (
     raw_results_to_models,
     search_with_domain_retry,
 )
-from tools.job_filter import filter_and_deduplicate
+from tools.job_filter import filter_and_deduplicate, location_conflict
 from tools.job_normalizer import normalize_jobs
 from tools.job_scorer import canonical_skill, rank_jobs
 
@@ -441,10 +441,28 @@ def filter_and_deduplicate_jobs(
     }
     if not outcome.kept:
         window = state.get("freshness_window", "last_24_hours")
+        window_label = FRESHNESS_LABELS.get(window, "the selected window").lower()
         message = (
             "No usable public job descriptions remained after filtering. "
             "Retry with Direct Company Careers or All Public Sources."
         )
+        # The plainest answer first: nothing was posted for this role, here,
+        # recently. Everything the search returned named somewhere else.
+        requested_place = (state.get("location") or "").strip()
+        off_location = [
+            job
+            for job in normalized
+            if location_conflict(requested_place, job)
+        ]
+        if requested_place and off_location and len(off_location) == len(normalized):
+            role = (state.get("role") or "this role").strip()
+            message = (
+                f"No recent job postings for {role} in {requested_place} in the "
+                f"{window_label}. All {len(normalized)} posting(s) the search "
+                f"returned are for other locations. Try a wider freshness window, "
+                f"or set Work mode to Remote to include roles you could do from "
+                f"{requested_place}."
+            )
         if window == "last_hour":
             message = (
                 "No verifiable postings remained for Last 1 hour. "

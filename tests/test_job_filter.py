@@ -20,6 +20,7 @@ from tools.job_normalizer import (
     compute_freshness,
     detect_closed,
     make_excerpt,
+    strip_card_header,
     normalize_job,
     parse_posted_at,
     split_title_and_company,
@@ -82,8 +83,13 @@ class TestLocationFiltering:
         job = make_job(location="Houston, Texas")
         assert not location_conflict("Houston, TX", job)
 
-    def test_another_city_in_the_requested_state_is_kept(self):
-        job = make_job(location="Dallas, TX", work_mode="onsite")
+    def test_another_city_in_the_requested_state_is_removed(self):
+        """Austin is in Texas, but it is not a Houston job."""
+        job = make_job(location="Austin, TX", work_mode="onsite")
+        assert location_conflict("Houston, TX", job)
+
+    def test_a_commuting_suburb_is_kept(self):
+        job = make_job(location="Sugar Land, TX", work_mode="onsite")
         assert not location_conflict("Houston, TX", job)
 
     def test_a_nationwide_posting_is_kept(self):
@@ -247,6 +253,32 @@ class TestDescriptionHandling:
         first = make_excerpt(description)
         assert first == make_excerpt(description)
         assert len(first) <= 262
+
+    def test_the_card_header_is_not_repeated_in_the_excerpt(self):
+        """Title, location, breadcrumb, and apply link already sit on the card."""
+        raw = (
+            "Entry Level Data Analyst Austin, TX Product / Regular Full-Time / "
+            "On-site apply for this job Meds.com is a rapidly growing consumer "
+            "technology firm operating a suite of healthcare businesses."
+        )
+        body = strip_card_header(
+            raw, title="Entry Level Data Analyst", location="Austin, TX"
+        )
+        assert body.startswith("Meds.com is a rapidly growing")
+
+    def test_prose_beginning_with_a_work_mode_word_is_untouched(self):
+        """"Remote work is supported" is the posting talking, not page chrome."""
+        raw = "Remote work is supported. We are hiring an analyst to own reporting."
+        assert strip_card_header(raw, title="Data Analyst", location="Austin, TX") == raw
+
+    def test_a_posting_with_no_header_is_untouched(self):
+        raw = "Sysco is the global leader in foodservice distribution and offers a paid internship."
+        assert strip_card_header(raw, title="Analytics Intern", location="Houston, TX") == raw
+
+    def test_stripping_never_eats_the_whole_posting(self):
+        """A description that is only header keeps the source text rather than emptying."""
+        raw = "Data Analyst Houston, TX On-site apply for this job"
+        assert strip_card_header(raw, title="Data Analyst", location="Houston, TX") == raw
 
     def test_full_description_survives_normalization(self, null_llm):
         job, warning = normalize_job(make_raw(), null_llm)
