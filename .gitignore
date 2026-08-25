@@ -1,0 +1,12 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.streamlit/secrets.toml
+output/*
+!output/.gitkeep
+*.log
+.DS_Store
+cougar-career-agent-student.zip

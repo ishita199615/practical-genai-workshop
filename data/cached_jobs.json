@@ -1,0 +1,301 @@
+{
+  "cache_label": "CACHED DEMONSTRATION RESULTS",
+  "synthetic": true,
+  "data_notice": "Synthetic demonstration data written for the University of Houston System Practical Generative AI workshop. Company names, postings, and URLs are fictional examples shaped like real public applicant-tracking-system pages. They are used only when live Firecrawl retrieval is unavailable, and the interface labels them as cached. No real employer posting is reproduced here.",
+  "originally_retrieved_at": "2026-08-20T14:05:00+00:00",
+  "modification_log": [
+    "2026-08-20 — created as synthetic rehearsal data; no live posting text was copied or altered."
+  ],
+  "jobs": [
+    {
+      "url": "https://job-boards.greenhouse.io/lakesideanalytics/jobs/4410021?utm_source=demo",
+      "final_url": "https://job-boards.greenhouse.io/lakesideanalytics/jobs/4410021",
+      "title": "Data Analyst Intern — Lakeside Analytics",
+      "description": "Lakeside Analytics is hiring a Data Analyst Intern in Houston, TX to support reporting and dashboard work.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "Greenhouse",
+      "metadata": {
+        "title": "Data Analyst Intern — Lakeside Analytics",
+        "company": "Lakeside Analytics",
+        "cached_extraction": {
+          "title": "Data Analyst Intern",
+          "company": "Lakeside Analytics",
+          "location": "Houston, TX",
+          "work_mode": "hybrid",
+          "posted_at_text": "3 hours ago",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": null,
+          "education_requirement": "Currently enrolled in a bachelor's degree program",
+          "required_skills": [
+            "SQL",
+            "Excel",
+            "Python",
+            "Power BI"
+          ],
+          "preferred_skills": [
+            "Tableau",
+            "Statistics"
+          ],
+          "responsibilities": [
+            "Prepare recurring weekly reporting for the analytics team",
+            "Clean and validate survey and operational data before analysis",
+            "Build and maintain Power BI dashboards used by business partners",
+            "Produce clear data visualization for non-technical readers"
+          ],
+          "description": "Data Analyst Intern\nLakeside Analytics — Houston, TX (Hybrid)\n\nAbout the role\n\nLakeside Analytics helps regional operations teams understand their data. We are looking for a Data Analyst Intern to join our reporting team for a paid internship. You will work alongside two senior analysts on recurring reporting, data cleaning, and dashboard development. This is a hands-on role for a student who enjoys turning messy spreadsheets into something a business partner can actually use.\n\nWhat you will do\n\n- Prepare recurring weekly reporting for the analytics team, including refreshing source extracts and checking totals against prior periods.\n- Clean and validate survey and operational data before analysis, documenting any assumptions you make.\n- Build and maintain Power BI dashboards used by business partners across operations and finance.\n- Produce clear data visualization that a non-technical reader can interpret without a walkthrough.\n- Write SQL queries against our reporting warehouse to answer ad hoc questions.\n- Use Python and pandas for repeatable data cleaning steps rather than manual edits.\n- Document data definitions so that reports stay consistent from week to week.\n\nMinimum qualifications\n\n- Currently enrolled in a bachelor's degree program in information systems, statistics, business analytics, economics, or a related field.\n- Working knowledge of SQL, including joins and aggregation.\n- Comfort with Excel, including pivot tables and lookup functions.\n- Some exposure to Python for data analysis.\n- Working knowledge of Power BI for building and publishing reports.\n- Clear written communication; you will be asked to explain your numbers.\n\nPreferred qualifications\n\n- Experience building dashboards in Tableau or a similar tool.\n- Coursework in statistics or research methods.\n- Experience working with survey data.\n\nWhat we offer\n\nA paid internship, a hybrid schedule with two days per week in our Houston office, and a mentor from the analytics team. We review interns for full-time consideration at the end of the term.\n\nLakeside Analytics is an equal opportunity employer."
+        }
+      }
+    },
+    {
+      "url": "https://jobs.lever.co/bayouinsights/8f31c6a2-2f19-4b6a-9d0e-77c1a2b40f55",
+      "final_url": "https://jobs.lever.co/bayouinsights/8f31c6a2-2f19-4b6a-9d0e-77c1a2b40f55",
+      "title": "Junior Data Analyst — Bayou Insights",
+      "description": "Bayou Insights is hiring a Junior Data Analyst in Houston, TX for reporting and data visualization work.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "Lever",
+      "metadata": {
+        "title": "Junior Data Analyst — Bayou Insights",
+        "company": "Bayou Insights",
+        "cached_extraction": {
+          "title": "Junior Data Analyst",
+          "company": "Bayou Insights",
+          "location": "Houston, TX",
+          "work_mode": "hybrid",
+          "posted_at_text": "9 hours ago",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": 1,
+          "education_requirement": "Bachelor's degree in progress or completed",
+          "required_skills": [
+            "SQL",
+            "Excel",
+            "Power BI",
+            "Data visualization"
+          ],
+          "preferred_skills": [
+            "Python",
+            "Statistics"
+          ],
+          "responsibilities": [
+            "Produce recurring operational reporting for internal stakeholders",
+            "Build data visualization that non-technical partners can read quickly",
+            "Clean and reconcile data from several source systems",
+            "Support ad hoc analysis requests from the operations team"
+          ],
+          "description": "Junior Data Analyst\nBayou Insights — Houston, TX (Hybrid)\n\nWho we are\n\nBayou Insights is a small analytics consultancy serving logistics and energy services clients along the Gulf Coast. Our analysts sit close to the business, and the reporting we produce is read by people who make operational decisions the same week.\n\nThe role\n\nWe are hiring a Junior Data Analyst to own recurring reporting and to improve how our data visualization work is delivered. You will spend most of your week in SQL and Power BI, with Excel used for quick reconciliation and client-facing summaries. This role suits someone early in their career who wants to be trusted with a reporting stream rather than handed fragments of one.\n\nResponsibilities\n\n- Produce recurring operational reporting for internal stakeholders and for two client accounts.\n- Build data visualization that non-technical partners can read quickly, and retire dashboards nobody uses.\n- Clean and reconcile data arriving from several source systems, and flag quality problems early.\n- Support ad hoc analysis requests from the operations team, usually with a same-day turnaround.\n- Write short written summaries of what the numbers mean, not just what they are.\n\nRequired qualifications\n\n- At least one year of related analytical experience, including internships and substantial academic project work.\n- Working SQL skills: joins, aggregation, and window functions.\n- Demonstrated Power BI experience, including building and publishing reports.\n- Strong Excel skills for reconciliation and summary work.\n- Experience producing data visualization for a non-technical audience.\n- A bachelor's degree in progress or completed in a quantitative or business field.\n\nPreferred qualifications\n\n- Python for data cleaning and automation.\n- Coursework or applied work in statistics.\n- Exposure to consulting or client-facing analytics.\n\nDetails\n\nHybrid schedule, three days per week in our Houston office. Bayou Insights is an equal opportunity employer."
+        }
+      }
+    },
+    {
+      "url": "https://jobs.ashbyhq.com/gulfcoastretail/9a1b7c33-4e21-4c8a-bb0f-2d5e18a7c904",
+      "final_url": "https://jobs.ashbyhq.com/gulfcoastretail/9a1b7c33-4e21-4c8a-bb0f-2d5e18a7c904",
+      "title": "Business Intelligence Intern — Gulf Coast Retail Group",
+      "description": "Business Intelligence Intern supporting merchandising analytics and dashboard development.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "Ashby",
+      "metadata": {
+        "title": "Business Intelligence Intern — Gulf Coast Retail Group",
+        "company": "Gulf Coast Retail Group",
+        "cached_extraction": {
+          "title": "Business Intelligence Intern",
+          "company": "Gulf Coast Retail Group",
+          "location": "Houston, TX",
+          "work_mode": "onsite",
+          "posted_at_text": "2026-08-20",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": null,
+          "education_requirement": "Enrolled in a bachelor's program",
+          "required_skills": [
+            "Excel",
+            "SQL"
+          ],
+          "preferred_skills": [
+            "Power BI",
+            "Tableau",
+            "Looker",
+            "ETL",
+            "Data visualization"
+          ],
+          "responsibilities": [
+            "Support merchandising analytics with recurring reporting",
+            "Assist with dashboard development and testing",
+            "Produce data visualization for category managers",
+            "Prepare data extracts and support data cleaning across source feeds"
+          ],
+          "description": "Business Intelligence Intern\nGulf Coast Retail Group — Houston, TX (On-site)\n\nOverview\n\nGulf Coast Retail Group operates regional grocery and convenience locations across southeast Texas. Our business intelligence team supports merchandising, supply chain, and store operations with reporting that people actually use on the floor.\n\nWhat you will do\n\n- Support merchandising analytics with recurring weekly and monthly reporting.\n- Assist with dashboard development and testing before reports are published to category managers.\n- Produce data visualization that a category manager can read in under a minute.\n- Prepare data extracts and support data cleaning across several source feeds, and answer questions about how a number was derived.\n- Help maintain our reporting documentation so definitions stay stable across teams.\n- Participate in a weekly analytics review where interns present one finding.\n\nMinimum qualifications\n\n- Enrolled in a bachelor's program in business, information systems, supply chain, statistics, or a related field.\n- Comfort with Excel, including pivot tables, lookups, and basic charting.\n- Introductory SQL: you can read a query and modify a filter.\n- Coursework or applied exposure to statistics.\n- Attention to detail and willingness to check your own work.\n\nPreferred qualifications\n\n- Exposure to Power BI, Tableau, or Looker. Our published reports are built in Power BI, and candidates who have used any modern visualization tool pick it up quickly.\n- Familiarity with ETL concepts, such as how a nightly load can change yesterday's numbers.\n- Retail, grocery, or supply chain coursework or work experience.\n- Interest in merchandising analytics.\n\nSchedule\n\nOn-site in Houston, twenty to twenty-five hours per week during the academic term. Gulf Coast Retail Group is an equal opportunity employer."
+        }
+      }
+    },
+    {
+      "url": "https://jobs.smartrecruiters.com/HarborLogisticsCo/744000112233445-entry-level-data-analyst",
+      "final_url": "https://jobs.smartrecruiters.com/HarborLogisticsCo/744000112233445-entry-level-data-analyst",
+      "title": "Entry Level Data Analyst — Harbor Logistics Co",
+      "description": "Remote entry level data analyst role supporting logistics reporting.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "SmartRecruiters",
+      "metadata": {
+        "title": "Entry Level Data Analyst — Harbor Logistics Co",
+        "company": "Harbor Logistics Co",
+        "cached_extraction": {
+          "title": "Entry Level Data Analyst",
+          "company": "Harbor Logistics Co",
+          "location": "Remote — United States",
+          "work_mode": "remote",
+          "posted_at_text": "18 hours ago",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": 0,
+          "education_requirement": "Bachelor's degree or equivalent experience",
+          "required_skills": [
+            "Excel",
+            "SQL",
+            "Statistics"
+          ],
+          "preferred_skills": [
+            "Python",
+            "Tableau"
+          ],
+          "responsibilities": [
+            "Maintain daily and weekly shipment reporting",
+            "Investigate data quality issues across carrier feeds",
+            "Summarize findings for operations leadership"
+          ],
+          "description": "Entry Level Data Analyst\nHarbor Logistics Co — Remote (United States)\n\nAbout the team\n\nHarbor Logistics Co moves freight for mid-market shippers, and our analytics team is how the operations group knows what happened yesterday and what is likely to happen tomorrow. We are a small team, so new analysts get real ownership quickly.\n\nResponsibilities\n\n- Maintain daily and weekly shipment reporting, including on-time performance and exception summaries.\n- Investigate data quality issues across carrier feeds, and work with the integrations team when a feed drifts.\n- Summarize findings for operations leadership in plain language, with the caveats stated honestly.\n- Write and maintain SQL queries used by recurring reports.\n- Apply basic statistics to distinguish a real change from normal week-to-week variation.\n\nMinimum qualifications\n\n- Bachelor's degree or equivalent practical experience in a quantitative field.\n- Strong Excel skills, including pivot tables and formulas across multiple sheets.\n- Working SQL knowledge with the ability to write joins and aggregations.\n- Familiarity with basic statistics such as averages, distributions, and variation.\n- Clear written communication.\n\nPreferred qualifications\n\n- Python for repeatable data cleaning.\n- Experience building dashboards in Tableau.\n- Logistics, supply chain, or transportation exposure.\n\nWork setup\n\nFully remote within the United States, with quarterly optional travel. Harbor Logistics Co is an equal opportunity employer."
+        }
+      }
+    },
+    {
+      "url": "https://www.linkedin.com/jobs/view/4188220561/?trk=public_jobs_topcard",
+      "final_url": "https://www.linkedin.com/jobs/view/4188220561",
+      "title": "Data Analyst Intern — Northline Energy Services | LinkedIn",
+      "description": "Public LinkedIn job page for a Data Analyst Intern role at Northline Energy Services.",
+      "detected_source_category": "linkedin",
+      "detected_source_label": "LinkedIn",
+      "metadata": {
+        "title": "Data Analyst Intern — Northline Energy Services | LinkedIn",
+        "company": "Northline Energy Services",
+        "cached_extraction": {
+          "title": "Data Analyst Intern",
+          "company": "Northline Energy Services",
+          "location": "Houston, TX",
+          "work_mode": "onsite",
+          "posted_at_text": "22 hours ago",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": null,
+          "education_requirement": "Currently pursuing a bachelor's degree",
+          "required_skills": [
+            "Excel",
+            "Python"
+          ],
+          "preferred_skills": [
+            "SQL",
+            "Tableau"
+          ],
+          "responsibilities": [
+            "Assist with production and operations reporting",
+            "Clean field data before it reaches the reporting layer",
+            "Prepare summary charts for weekly review meetings"
+          ],
+          "description": "Data Analyst Intern\nNorthline Energy Services — Houston, TX (On-site)\n\nPosition summary\n\nNorthline Energy Services provides field services to operators across Texas and Louisiana. The data team supports production reporting, field operations, and safety analytics. We are hiring a Data Analyst Intern for the coming term.\n\nKey responsibilities\n\n- Assist with production and operations reporting on a weekly cycle.\n- Clean field data before it reaches the reporting layer, including handling missing entries and duplicate records.\n- Prepare summary charts for weekly review meetings with field supervisors.\n- Support the analytics team with ad hoc data pulls and simple analysis.\n- Keep a written record of the steps used to produce each recurring report.\n\nRequired qualifications\n\n- Currently pursuing a bachelor's degree in engineering, information systems, statistics, or a related field.\n- Working knowledge of Excel, including formulas and pivot tables.\n- Some experience with Python for data cleaning or analysis coursework.\n- Willingness to ask questions when a data point does not look right.\n\nPreferred qualifications\n\n- SQL familiarity.\n- Exposure to Tableau or another visualization tool.\n- Interest in energy operations.\n\nDetails\n\nOn-site in Houston, part-time during the academic term with the option of full-time hours during the summer. Northline Energy Services is an equal opportunity employer."
+        }
+      }
+    },
+    {
+      "url": "https://boards.greenhouse.io/meridiandataco/jobs/7712004",
+      "final_url": "https://boards.greenhouse.io/meridiandataco/jobs/7712004",
+      "title": "Data Analyst Intern — Meridian Data Co",
+      "description": "This role is no longer accepting applications.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "Greenhouse",
+      "metadata": {
+        "title": "Data Analyst Intern — Meridian Data Co",
+        "company": "Meridian Data Co",
+        "cached_extraction": {
+          "title": "Data Analyst Intern",
+          "company": "Meridian Data Co",
+          "location": "Houston, TX",
+          "work_mode": "hybrid",
+          "posted_at_text": "6 hours ago",
+          "is_closed": true,
+          "is_specific_opening": true,
+          "minimum_experience_years": null,
+          "education_requirement": null,
+          "required_skills": [
+            "SQL",
+            "Excel"
+          ],
+          "preferred_skills": [
+            "Tableau"
+          ],
+          "responsibilities": [],
+          "description": "Data Analyst Intern\nMeridian Data Co — Houston, TX (Hybrid)\n\nThis position is no longer accepting applications.\n\nThe posting below is retained for reference only.\n\nMeridian Data Co was hiring a Data Analyst Intern to support recurring reporting and dashboard maintenance for our client delivery team. The role involved writing SQL against a reporting warehouse, preparing Excel summaries for account managers, and helping maintain Tableau dashboards. Minimum qualifications included enrollment in a bachelor's program, working SQL knowledge, and comfort with Excel formulas and pivot tables. Preferred qualifications included Tableau experience and exposure to client-facing analytics work.\n\nApplications for this posting are closed. Please review our other openings."
+        }
+      }
+    },
+    {
+      "url": "https://job-boards.greenhouse.io/lakesideanalytics/jobs/4410021?gh_src=aggregator",
+      "final_url": "https://job-boards.greenhouse.io/lakesideanalytics/jobs/4410021?gh_src=aggregator",
+      "title": "Data Analyst Intern — Lakeside Analytics",
+      "description": "Duplicate aggregator copy of the Lakeside Analytics internship posting.",
+      "detected_source_category": "company_careers",
+      "detected_source_label": "Greenhouse",
+      "metadata": {
+        "title": "Data Analyst Intern — Lakeside Analytics",
+        "company": "Lakeside Analytics",
+        "cached_extraction": {
+          "title": "Data Analyst Intern",
+          "company": "Lakeside Analytics",
+          "location": "Houston, TX",
+          "work_mode": "hybrid",
+          "posted_at_text": "3 hours ago",
+          "is_closed": false,
+          "is_specific_opening": true,
+          "minimum_experience_years": null,
+          "education_requirement": "Currently enrolled in a bachelor's degree program",
+          "required_skills": [
+            "SQL",
+            "Excel",
+            "Python",
+            "Power BI"
+          ],
+          "preferred_skills": [
+            "Tableau",
+            "Statistics"
+          ],
+          "responsibilities": [
+            "Prepare recurring weekly reporting for the analytics team",
+            "Clean and validate survey and operational data before analysis"
+          ],
+          "description": "Data Analyst Intern\nLakeside Analytics — Houston, TX (Hybrid)\n\nAbout the role\n\nLakeside Analytics helps regional operations teams understand their data. We are looking for a Data Analyst Intern to join our reporting team for a paid internship. You will work alongside two senior analysts on recurring reporting, data cleaning, and dashboard development. This is a hands-on role for a student who enjoys turning messy spreadsheets into something a business partner can actually use.\n\nWhat you will do\n\n- Prepare recurring weekly reporting for the analytics team, including refreshing source extracts and checking totals against prior periods.\n- Clean and validate survey and operational data before analysis, documenting any assumptions you make.\n- Build and maintain Power BI dashboards used by business partners across operations and finance.\n- Produce clear data visualization that a non-technical reader can interpret without a walkthrough.\n- Write SQL queries against our reporting warehouse to answer ad hoc questions.\n- Use Python and pandas for repeatable data cleaning steps rather than manual edits.\n\nMinimum qualifications\n\n- Currently enrolled in a bachelor's degree program in information systems, statistics, business analytics, economics, or a related field.\n- Working knowledge of SQL, including joins and aggregation.\n- Comfort with Excel, including pivot tables and lookup functions.\n- Some exposure to Python for data analysis.\n- Working knowledge of Power BI for building and publishing reports.\n\nPreferred qualifications\n\n- Experience building dashboards in Tableau or a similar tool.\n- Coursework in statistics or research methods."
+        }
+      }
+    },
+    {
+      "url": "https://www.linkedin.com/jobs/search/?keywords=data%20analyst%20intern&location=Houston",
+      "final_url": "https://www.linkedin.com/jobs/search/?keywords=data+analyst+intern&location=Houston",
+      "title": "Data analyst intern jobs in Houston | LinkedIn",
+      "description": "LinkedIn job search results page rather than one specific opening.",
+      "detected_source_category": "linkedin",
+      "detected_source_label": "LinkedIn",
+      "metadata": {
+        "title": "Data analyst intern jobs in Houston | LinkedIn",
+        "cached_extraction": {
+          "title": "Data analyst intern jobs in Houston",
+          "company": null,
+          "location": "Houston, TX",
+          "work_mode": "unknown",
+          "posted_at_text": null,
+          "is_closed": false,
+          "is_specific_opening": false,
+          "required_skills": [],
+          "preferred_skills": [],
+          "responsibilities": [],
+          "description": "Data analyst intern jobs in Houston\n\nBrowse 240 results. Refine your search by date posted, experience level, company, and work mode. Set an alert to be notified about new postings that match these filters. This page lists many openings and is not a single job description."
+        }
+      }
+    }
+  ]
+}

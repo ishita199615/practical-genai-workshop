@@ -1,0 +1,13 @@
+streamlit
+langgraph
+firecrawl-py
+google-genai
+pydantic
+pandas
+scikit-learn
+rapidfuzz
+python-dotenv
+requests
+pytest
+# Pinned: 1.98 imports typing.NotRequired and fails on Python 3.10.
+litellm==1.83.9

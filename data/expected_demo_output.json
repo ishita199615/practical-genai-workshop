@@ -1,0 +1,300 @@
+{
+  "notice": "Expected output of the cached rehearsal run with no LLM provider configured. Regenerate with scripts described in the README when the cache or the rubric changes. Reference time: 2026-08-21T12:00:00+00:00",
+  "reference_time": "2026-08-21T12:00:00+00:00",
+  "data_mode": "cached",
+  "search": {
+    "role": "Data Analyst Intern",
+    "location": "Houston, TX",
+    "work_mode": "Any",
+    "query_category": "company_careers",
+    "freshness_window": "last_24_hours",
+    "search_query": "(\"data analyst intern\" OR \"entry level data analyst\") (Houston OR remote)",
+    "freshness_tbs": "sbd:1,qdr:d"
+  },
+  "retrieved_count": 6,
+  "normalized_count": 6,
+  "kept_count": 4,
+  "ranked": [
+    {
+      "rank": 1,
+      "job_id": "job_5412ae23544a",
+      "title": "Business Intelligence Intern",
+      "company": "Gulf Coast Retail Group",
+      "source_label": "Ashby",
+      "source_url": "https://jobs.ashbyhq.com/gulfcoastretail/9a1b7c33-4e21-4c8a-bb0f-2d5e18a7c904",
+      "freshness_evidence": "date_only",
+      "total_score": 84,
+      "components": {
+        "skill": 100,
+        "similarity": 30,
+        "role": 100,
+        "experience": 80,
+        "preference": 100
+      },
+      "matched_skills": [
+        "excel",
+        "sql"
+      ],
+      "missing_skills": []
+    },
+    {
+      "rank": 2,
+      "job_id": "job_8a863e2fe23f",
+      "title": "Entry Level Data Analyst",
+      "company": "Harbor Logistics Co",
+      "source_label": "SmartRecruiters",
+      "source_url": "https://jobs.smartrecruiters.com/HarborLogisticsCo/744000112233445-entry-level-data-analyst",
+      "freshness_evidence": "exact_timestamp",
+      "total_score": 83,
+      "components": {
+        "skill": 100,
+        "similarity": 35,
+        "role": 72,
+        "experience": 100,
+        "preference": 100
+      },
+      "matched_skills": [
+        "excel",
+        "sql",
+        "statistics"
+      ],
+      "missing_skills": []
+    },
+    {
+      "rank": 3,
+      "job_id": "job_199e6eaf12ff",
+      "title": "Data Analyst Intern",
+      "company": "Lakeside Analytics",
+      "source_label": "Greenhouse",
+      "source_url": "https://job-boards.greenhouse.io/lakesideanalytics/jobs/4410021",
+      "freshness_evidence": "exact_timestamp",
+      "total_score": 81,
+      "components": {
+        "skill": 75,
+        "similarity": 70,
+        "role": 100,
+        "experience": 80,
+        "preference": 100
+      },
+      "matched_skills": [
+        "excel",
+        "python",
+        "sql"
+      ],
+      "missing_skills": [
+        "power bi"
+      ]
+    }
+  ],
+  "selected_job_id": "job_5412ae23544a",
+  "ats_original": {
+    "job_id": "job_5412ae23544a",
+    "resume_version": "original",
+    "total_score": 76,
+    "band": "needs_targeted_changes",
+    "keyword_score": 50,
+    "qualification_score": 100,
+    "evidence_score": 70,
+    "section_score": 100,
+    "structure_score": 100,
+    "contact_score": 100,
+    "matched_required_keywords": [
+      "excel",
+      "reporting",
+      "sql",
+      "statistics",
+      "tableau"
+    ],
+    "supported_but_missing_keywords": [
+      "data cleaning",
+      "data visualization"
+    ],
+    "unsupported_job_gaps": [
+      "etl",
+      "looker",
+      "power bi"
+    ],
+    "recommendations": [
+      {
+        "recommendation_id": "ats_rec_01",
+        "priority": "medium",
+        "category": "keyword_alignment",
+        "target_section": "Experience bullet project_1_bullet_1",
+        "current_text": "Used SQL and Pandas to clean and summarize fictional event attendance data.",
+        "recommended_change": "State “data cleaning” in this bullet, where the resume already evidences the work. Do not add it to the skills list.",
+        "reason": "The selected job uses “data cleaning”, and the resume already proves this work.",
+        "evidence_resume_ids": [
+          "skills",
+          "project_1_bullet_1"
+        ],
+        "safe_to_apply": true,
+        "projected_effect": "high"
+      },
+      {
+        "recommendation_id": "ats_rec_02",
+        "priority": "medium",
+        "category": "keyword_alignment",
+        "target_section": "Experience bullet experience_1_bullet_2",
+        "current_text": "Created Tableau dashboards for weekly reporting.",
+        "recommended_change": "State “data visualization” in this bullet, where the resume already evidences the work. Do not add it to the skills list.",
+        "reason": "The selected job uses “data visualization”, and the resume already proves this work.",
+        "evidence_resume_ids": [
+          "professional_summary",
+          "skills",
+          "experience_1_bullet_2"
+        ],
+        "safe_to_apply": true,
+        "projected_effect": "high"
+      },
+      {
+        "recommendation_id": "ats_rec_03",
+        "priority": "high",
+        "category": "unsupported_gap",
+        "target_section": "Missing qualification",
+        "current_text": null,
+        "recommended_change": "Do not add etl. Keep it in the learning-gap list.",
+        "reason": "The job requests etl, but the master resume contains no etl evidence.",
+        "evidence_resume_ids": [],
+        "safe_to_apply": false,
+        "projected_effect": "high"
+      }
+    ],
+    "disclaimer": "Estimated using this demo rubric; not an official employer ATS score."
+  },
+  "ats_projected": {
+    "job_id": "job_5412ae23544a",
+    "resume_version": "proposed",
+    "total_score": 86,
+    "band": "strong",
+    "keyword_score": 70,
+    "qualification_score": 100,
+    "evidence_score": 87,
+    "section_score": 100,
+    "structure_score": 100,
+    "contact_score": 100,
+    "matched_required_keywords": [
+      "data cleaning",
+      "data visualization",
+      "excel",
+      "reporting",
+      "sql",
+      "statistics",
+      "tableau"
+    ],
+    "supported_but_missing_keywords": [],
+    "unsupported_job_gaps": [
+      "etl",
+      "looker",
+      "power bi"
+    ],
+    "recommendations": [],
+    "disclaimer": "Estimated using this demo rubric; not an official employer ATS score."
+  },
+  "tailored_application": {
+    "job_id": "job_5412ae23544a",
+    "revised_summary": "Business Intelligence Intern candidate. Information systems student with hands-on experience analyzing survey data and building recurring dashboards, working with Python, SQL, Excel, Tableau.",
+    "revised_bullets": [
+      {
+        "source_bullet_id": "experience_1_bullet_1",
+        "original_text": "Analyzed survey data using Python and Excel.",
+        "revised_text": "Analyzed survey data using Python and Excel, including data cleaning."
+      },
+      {
+        "source_bullet_id": "experience_1_bullet_2",
+        "original_text": "Created Tableau dashboards for weekly reporting.",
+        "revised_text": "Created Tableau dashboards for weekly reporting, including data visualization."
+      }
+    ],
+    "reordered_skills": [
+      "SQL",
+      "Excel",
+      "Tableau",
+      "Statistics",
+      "Python",
+      "Pandas"
+    ],
+    "keywords_used": [
+      "data cleaning",
+      "data visualization",
+      "excel",
+      "reporting",
+      "sql",
+      "statistics",
+      "tableau"
+    ],
+    "applied_ats_recommendation_ids": [
+      "ats_rec_01",
+      "ats_rec_02"
+    ],
+    "unsupported_ats_gaps_not_applied": [
+      "etl",
+      "looker",
+      "power bi"
+    ],
+    "missing_requirements": [
+      "etl",
+      "looker",
+      "power bi"
+    ],
+    "cover_letter": "Dear Hiring Team,\n\nI am applying for the Business Intelligence Intern position at Gulf Coast Retail Group. I am an information systems student with hands-on experience analyzing survey data and building recurring dashboards, and that work lines up closely with what this role asks for. I analyzed survey data using Python and Excel. I created Tableau dashboards for weekly reporting. My strongest tools are Python, SQL, Excel, Tableau, and I use them to keep analysis reproducible and reporting easy for a reader to follow. I would welcome the chance to bring that same care to your team, and I am eager to keep learning the tools your analysts rely on.\n\nThank you for your time and consideration.\n\nSincerely,\nAlex Morgan"
+  },
+  "validation": {
+    "valid_source_ids": true,
+    "unsupported_claims": [],
+    "unclear_claims": [],
+    "deterministic_checks": [
+      {
+        "name": "Source IDs verified",
+        "passed": true,
+        "detail": "Every revised bullet points at a real resume bullet."
+      },
+      {
+        "name": "Original bullet text matches the master resume",
+        "passed": true,
+        "detail": "Quoted original text is identical to the master resume."
+      },
+      {
+        "name": "No unsupported employer added",
+        "passed": true,
+        "detail": "No employer outside the master resume appears."
+      },
+      {
+        "name": "No unsupported degree added",
+        "passed": true,
+        "detail": "No degree outside the master resume appears."
+      },
+      {
+        "name": "No new dates introduced",
+        "passed": true,
+        "detail": "All years trace back to the master resume."
+      },
+      {
+        "name": "No invented metrics",
+        "passed": true,
+        "detail": "No number appears that the master resume does not contain."
+      },
+      {
+        "name": "Skills remain grounded in the master resume",
+        "passed": true,
+        "detail": "The skills list was reordered, not expanded."
+      },
+      {
+        "name": "Only safe ATS recommendations were applied",
+        "passed": true,
+        "detail": "Every applied recommendation was marked safe and cites resume evidence."
+      },
+      {
+        "name": "Unsupported job gaps were not added",
+        "passed": true,
+        "detail": "No unsupported requirement was written into the application."
+      },
+      {
+        "name": "Cover letter claims no unsupported skill",
+        "passed": true,
+        "detail": "Every tool named in the cover letter exists in the master resume."
+      }
+    ],
+    "passed": true
+  },
+  "approval_pause": "Application package ready.\nNo application has been submitted.\nWaiting for human approval."
+}

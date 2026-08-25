@@ -1,0 +1,68 @@
+{
+  "candidate_id": "demo_candidate_001",
+  "name": "Alex Morgan",
+  "email": "alex.morgan@example.com",
+  "phone": "555-010-2026",
+  "location": "Houston, TX",
+  "professional_summary": "Information systems student with hands-on experience analyzing survey data and building recurring dashboards.",
+  "target_roles": [
+    "Data Analyst Intern",
+    "Junior Data Analyst",
+    "Business Intelligence Intern"
+  ],
+  "skills": [
+    "Python",
+    "SQL",
+    "Excel",
+    "Tableau",
+    "Pandas",
+    "Statistics"
+  ],
+  "education": [
+    {
+      "id": "education_1",
+      "degree": "Bachelor of Science in Information Systems",
+      "institution": "Example University",
+      "graduation": "May 2027"
+    }
+  ],
+  "experience": [
+    {
+      "id": "experience_1",
+      "title": "Student Data Assistant",
+      "organization": "Example Research Lab",
+      "dates": "August 2025–Present",
+      "bullets": [
+        {
+          "id": "experience_1_bullet_1",
+          "text": "Analyzed survey data using Python and Excel."
+        },
+        {
+          "id": "experience_1_bullet_2",
+          "text": "Created Tableau dashboards for weekly reporting."
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "project_1",
+      "name": "Campus Event Attendance Analysis",
+      "bullets": [
+        {
+          "id": "project_1_bullet_1",
+          "text": "Used SQL and Pandas to clean and summarize fictional event attendance data."
+        }
+      ]
+    }
+  ],
+  "document_features": {
+    "source_format": "synthetic_plain_text",
+    "parse_success": true,
+    "single_column": true,
+    "standard_headings": true,
+    "uses_tables_for_layout": false,
+    "uses_text_boxes": false,
+    "uses_images_for_critical_text": false
+  }
+}
