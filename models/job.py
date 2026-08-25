@@ -38,6 +38,25 @@ FreshnessStatus = Literal[
 
 WorkMode = Literal["remote", "hybrid", "onsite", "unknown"]
 
+# Spellings a work mode may arrive as. The search query and the preference score
+# both branch on this value, so a label that fails to match is not a cosmetic
+# problem: it silently reads as "any" and quietly widens the search.
+_WORK_MODE_ALIASES = {
+    "on-site": "onsite",
+    "on site": "onsite",
+    "in-office": "onsite",
+    "in office": "onsite",
+    "work from home": "remote",
+    "wfh": "remote",
+}
+
+
+def normalize_work_mode(work_mode: str | None) -> str:
+    """Return the canonical spelling of a work mode, or ``"any"`` when unset."""
+    text = (work_mode or "any").strip().lower()
+    return _WORK_MODE_ALIASES.get(text, text)
+
+
 # Seniority the user is searching for, and the seniority detected on a posting.
 # "unknown" is a real answer: many postings never state a level, and inventing
 # one would be exactly the kind of unsupported claim this project refuses to make.

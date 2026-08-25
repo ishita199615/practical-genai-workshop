@@ -61,7 +61,14 @@ EXPERIENCE_OPTIONS: list[tuple[str, str]] = [
     ("unknown", "Any level"),
 ]
 
-WORK_MODES = ["Any", "Remote", "Hybrid", "On-site"]
+# The value is what the search and the scorer read, so it must be the canonical
+# WorkMode spelling: "On-site" as a value would silently read as "Any".
+WORK_MODE_OPTIONS: list[tuple[str, str]] = [
+    ("any", "Any"),
+    ("remote", "Remote"),
+    ("hybrid", "Hybrid"),
+    ("onsite", "On-site"),
+]
 
 FRESHNESS_EVIDENCE_BADGE: dict[str, str] = {
     "exact_timestamp": "🕒 Exact timestamp",
@@ -245,7 +252,12 @@ with st.form("search_preferences"):
     row_one = st.columns([2, 2, 1])
     role = row_one[0].text_input("Target role", value="Data Analyst Intern")
     location = row_one[1].text_input("Location", value="Houston, TX")
-    work_mode = row_one[2].selectbox("Work mode", WORK_MODES, index=0)
+    work_mode = row_one[2].selectbox(
+        "Work mode",
+        options=[key for key, _ in WORK_MODE_OPTIONS],
+        index=0,
+        format_func=lambda key: label_for(WORK_MODE_OPTIONS, key),
+    )
 
     row_two = st.columns([2, 2, 2])
     query_category = row_two[0].selectbox(

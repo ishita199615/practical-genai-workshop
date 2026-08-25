@@ -22,7 +22,7 @@ from rapidfuzz import fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from models.job import JobPosting
+from models.job import JobPosting, normalize_work_mode
 from models.match import MatchResult
 from models.resume import ResumeProfile
 from tools.experience_level import expected_years
@@ -337,7 +337,7 @@ def score_preference_alignment(
     """Score location and work-mode fit from 0 to 100 with a short summary."""
     city = location.split(",")[0].strip().lower()
     job_location = (job.location or "").lower()
-    mode = (work_mode or "any").strip().lower()
+    mode = normalize_work_mode(work_mode)
     location_match = bool(city) and city in job_location
     job_mode = job.work_mode
 

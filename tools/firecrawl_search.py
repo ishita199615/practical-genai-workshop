@@ -29,6 +29,7 @@ from models.job import (
     FreshnessWindow,
     RawJobResult,
     SourceCategory,
+    normalize_work_mode,
 )
 from tools.experience_level import level_query_terms
 
@@ -168,7 +169,7 @@ def role_variants(role: str) -> list[str]:
 def location_clause(location: str, work_mode: str) -> str:
     """Build the location half of the query from the location and work mode."""
     city = location.split(",")[0].strip()
-    mode = (work_mode or "any").strip().lower()
+    mode = normalize_work_mode(work_mode)
     if mode == "remote":
         return "(remote)"
     if not city:

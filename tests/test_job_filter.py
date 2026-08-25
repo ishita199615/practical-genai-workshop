@@ -7,8 +7,13 @@ from datetime import date, datetime, timedelta, timezone
 import pytest
 
 from tests.conftest import FIXED_NOW, make_job, make_raw
-from tools.firecrawl_search import company_from_url
-from tools.job_filter import filter_and_deduplicate, rejection_reason
+from models.job import normalize_work_mode
+from tools.firecrawl_search import company_from_url, location_clause
+from tools.job_filter import (
+    filter_and_deduplicate,
+    location_conflict,
+    rejection_reason,
+)
 from tools.job_normalizer import (
     MIN_DESCRIPTION_CHARS,
     clean_description,
@@ -57,6 +62,86 @@ class TestRejectionRules:
         assert outcome.kept == []
         assert outcome.removed_count == 1
         assert outcome.reasons()[0]
+
+
+class TestLocationFiltering:
+    """A posting is dropped only when it names a place other than the one asked for."""
+
+    def test_a_posting_in_another_country_is_removed(self):
+        job = make_job(location="Riyadh Saudi Arabia")
+        assert location_conflict("Houston, TX", job)
+
+    def test_a_posting_in_another_us_city_is_removed(self):
+        job = make_job(location="New York, NY", work_mode="onsite")
+        assert location_conflict("Houston, TX", job)
+
+    def test_the_requested_city_is_kept(self):
+        assert not location_conflict("Houston, TX", make_job(location="Houston, TX"))
+
+    def test_the_state_name_matches_its_abbreviation(self):
+        job = make_job(location="Houston, Texas")
+        assert not location_conflict("Houston, TX", job)
+
+    def test_another_city_in_the_requested_state_is_kept(self):
+        job = make_job(location="Dallas, TX", work_mode="onsite")
+        assert not location_conflict("Houston, TX", job)
+
+    def test_a_nationwide_posting_is_kept(self):
+        job = make_job(location="United States")
+        assert not location_conflict("Houston, TX", job)
+
+    def test_a_placeless_remote_posting_is_kept(self):
+        job = make_job(location="Remote", work_mode="remote")
+        assert not location_conflict("Houston, TX", job)
+
+    def test_a_remote_posting_anchored_abroad_is_removed(self):
+        job = make_job(location="Hong Kong / Asia", work_mode="remote")
+        assert location_conflict("Houston, TX", job)
+
+    def test_a_posting_without_a_location_is_kept(self):
+        assert not location_conflict("Houston, TX", make_job(location=None))
+
+    def test_no_requested_location_filters_nothing(self):
+        assert not location_conflict("", make_job(location="Singapore"))
+
+    def test_the_removal_reason_names_both_places(self):
+        job = make_job(location="Singapore", work_mode="onsite")
+        reason = rejection_reason(
+            job, min_description_chars=400, requested_location="Houston, TX"
+        )
+        assert "Singapore" in reason and "Houston, TX" in reason
+
+    def test_filtering_drops_the_off_location_posting_only(self):
+        houston = make_job(location="Houston, TX", source_url="https://a.example/1")
+        abroad = make_job(
+            location="Riyadh Saudi Arabia", source_url="https://a.example/2"
+        )
+        outcome = filter_and_deduplicate(
+            [houston, abroad], requested_location="Houston, TX"
+        )
+        assert outcome.kept == [houston]
+        assert outcome.removed_count == 1
+
+
+class TestWorkModeSpelling:
+    """The UI label must reach the query and the scorer as a canonical value."""
+
+    def test_the_onsite_label_is_canonicalized(self):
+        assert normalize_work_mode("On-site") == "onsite"
+
+    def test_canonical_values_pass_through(self):
+        assert normalize_work_mode("remote") == "remote"
+        assert normalize_work_mode("hybrid") == "hybrid"
+
+    def test_an_unset_mode_reads_as_any(self):
+        assert normalize_work_mode(None) == "any"
+        assert normalize_work_mode("") == "any"
+
+    def test_onsite_anchors_the_query_to_the_city(self):
+        assert location_clause("Houston, TX", "On-site") == "(Houston)"
+
+    def test_any_still_admits_remote(self):
+        assert location_clause("Houston, TX", "Any") == "(Houston OR remote)"
 
 
 class TestPostingTimeParsing:

@@ -11,7 +11,11 @@ from dataclasses import dataclass, field
 
 from models.job import EXPERIENCE_LEVEL_LABELS, ExperienceLevel, JobPosting
 from tools.experience_level import levels_conflict
-from tools.firecrawl_search import canonicalize_job_url, looks_like_generic_listing
+from tools.firecrawl_search import (
+    US_STATE_NAMES,
+    canonicalize_job_url,
+    looks_like_generic_listing,
+)
 from tools.job_normalizer import MIN_DESCRIPTION_CHARS
 
 _NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
@@ -33,6 +37,31 @@ _COMPANY_SUFFIXES = (
 
 PLACEHOLDER_TITLES = {"", "untitled posting"}
 PLACEHOLDER_COMPANIES = {"", "unknown company"}
+
+# A posting tied to no particular place can be worked from anywhere, including
+# the requested city.
+LOCATION_ANYWHERE = {
+    "remote",
+    "fully remote",
+    "anywhere",
+    "remote anywhere",
+    "global",
+    "worldwide",
+}
+
+# A posting scoped to the whole country still covers a city inside it.
+NATIONWIDE_US = {
+    "united states",
+    "united states of america",
+    "usa",
+    "us",
+    "u s",
+    "nationwide",
+    "remote us",
+    "remote united states",
+    "us remote",
+    "anywhere in the us",
+}
 
 
 @dataclass
@@ -72,6 +101,54 @@ def normalize_location(location: str | None) -> str:
     return _NON_ALNUM_RE.sub(" ", (location or "").strip().lower()).strip()
 
 
+def requested_location_terms(requested_location: str) -> list[str]:
+    """Return the place names a posting may name to satisfy the request.
+
+    ``"Houston, TX"`` yields ``["houston", "tx", "texas"]``, so a posting in
+    Dallas, Texas still counts as the requested region while one in Riyadh does
+    not.
+    """
+    parts = [part.strip() for part in (requested_location or "").split(",")]
+    terms = [normalize_location(part) for part in parts if part.strip()]
+    if len(parts) > 1:
+        full_name = US_STATE_NAMES.get(parts[-1].strip().upper())
+        if full_name:
+            terms.append(normalize_location(full_name))
+    return [term for term in terms if term]
+
+
+def location_conflict(requested_location: str, job: JobPosting) -> bool:
+    """True when a posting names a place that is clearly not the one requested.
+
+    Absence of evidence is never treated as a conflict: a posting that states no
+    location, or one tied to no particular place, is kept. "Remote" alone is not
+    a pass — a role advertised as remote *from Hong Kong* still names a region
+    the requested city is not in, so it is the stated place that decides.
+    """
+    terms = requested_location_terms(requested_location)
+    if not terms:
+        return False
+
+    job_location = normalize_location(job.location)
+    if not job_location or job_location in LOCATION_ANYWHERE:
+        return False
+    if job_location in NATIONWIDE_US and requested_region_is_us(requested_location):
+        return False
+
+    words = set(job_location.split())
+    return not any(
+        term in job_location if " " in term else term in words for term in terms
+    )
+
+
+def requested_region_is_us(requested_location: str) -> bool:
+    """True when the requested location names a US state."""
+    return any(
+        US_STATE_NAMES.get(part.strip().upper())
+        for part in (requested_location or "").split(",")
+    )
+
+
 def dedup_key(job: JobPosting) -> str:
     """Return the normalized company + title + location duplicate key."""
     return "|".join(
@@ -88,6 +165,7 @@ def rejection_reason(
     *,
     min_description_chars: int,
     requested_experience_level: ExperienceLevel = "unknown",
+    requested_location: str = "",
 ) -> str | None:
     """Return why a posting must be rejected, or ``None`` when it is usable.
 
@@ -95,6 +173,10 @@ def rejection_reason(
     itself states a level and that level differs from the one asked for. A
     posting that never states a level is kept: there is no evidence to drop it
     on, and dropping it would hide real openings. The default disables the rule.
+
+    ``requested_location`` follows the same shape: only a posting that names a
+    place other than the one asked for is dropped. Both defaults disable their
+    rule.
     """
     if job.is_closed:
         return f"{job.title} at {job.company} is closed or no longer accepting applications."
@@ -119,6 +201,11 @@ def rejection_reason(
             f"{EXPERIENCE_LEVEL_LABELS[job.experience_level]} posting removed: "
             f"you searched {EXPERIENCE_LEVEL_LABELS[requested_experience_level]}."
         )
+    if location_conflict(requested_location, job):
+        return (
+            f"'{job.title}' in {job.location} removed: "
+            f"you searched {requested_location.strip()}."
+        )
     return None
 
 
@@ -127,14 +214,16 @@ def filter_and_deduplicate(
     *,
     min_description_chars: int = MIN_DESCRIPTION_CHARS,
     requested_experience_level: ExperienceLevel = "unknown",
+    requested_location: str = "",
 ) -> FilterOutcome:
     """Apply every rejection rule, then remove duplicates.
 
     Deduplication uses both the canonicalized URL and the normalized
     company + title + location key, keeping the first occurrence.
 
-    ``requested_experience_level`` defaults to ``"unknown"``, which filters no
-    posting by seniority at all.
+    ``requested_experience_level`` defaults to ``"unknown"`` and
+    ``requested_location`` to ``""``, which filter no posting by seniority or
+    place at all.
     """
     outcome = FilterOutcome()
     seen_urls: set[str] = set()
@@ -145,6 +234,7 @@ def filter_and_deduplicate(
             job,
             min_description_chars=min_description_chars,
             requested_experience_level=requested_experience_level,
+            requested_location=requested_location,
         )
         if reason:
             outcome.removed.append((job.job_id, reason))

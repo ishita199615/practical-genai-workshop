@@ -420,11 +420,13 @@ def normalize_jobs_node(state: CareerAgentState, deps: AgentDeps) -> dict[str, A
 def filter_and_deduplicate_jobs(
     state: CareerAgentState, deps: AgentDeps
 ) -> dict[str, Any]:
-    """Remove closed, stale, snippet-only, generic, off-level, and duplicate postings."""
+    """Remove closed, stale, snippet-only, generic, off-level, off-location, and duplicate postings."""
     normalized = state.get("normalized_jobs", [])
     experience_level = requested_experience_level(state)
     outcome = filter_and_deduplicate(
-        normalized, requested_experience_level=experience_level
+        normalized,
+        requested_experience_level=experience_level,
+        requested_location=state.get("location") or "",
     )
     updates: dict[str, Any] = {
         "filtered_jobs": outcome.kept,
