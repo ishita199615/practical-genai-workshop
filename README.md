@@ -224,6 +224,9 @@ python -m pytest -q
 
 ## For instructors
 
+- **[docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md)** — the eight-minute demo,
+  minute by minute: what to click, what to say, and what to do when a live
+  API misbehaves mid-session
 - **[SETUP.md](SETUP.md)** — the student-facing install guide, Windows and macOS
 - **[docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md)** — architecture, the
   eight-minute demo script, and what testing against the live APIs actually
