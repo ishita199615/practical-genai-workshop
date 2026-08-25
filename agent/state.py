@@ -49,6 +49,9 @@ class CareerAgentState(TypedDict, total=False):
     resume: ResumeProfile
     raw_jobs: list[RawJobResult]
     normalized_jobs: list[JobPosting]
+    # True when the source stated its own fields, so no page was scraped and no
+    # model read one. Extraction is skipped rather than second-guessing them.
+    structured_source: bool
     filtered_jobs: list[JobPosting]
     ranked_matches: list[MatchResult]
 

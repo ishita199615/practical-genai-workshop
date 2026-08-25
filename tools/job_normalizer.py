@@ -64,6 +64,8 @@ _BOILERPLATE_PATTERNS: tuple[re.Pattern[str], ...] = (
         r"Please enable JavaScript.{0,200}?(?:to continue|in your browser)\.?",
         re.IGNORECASE | re.DOTALL,
     ),
+    # Workday opens many postings with a requisition count before any prose.
+    re.compile(r"^\s*Total Number of Openings\s*\d*", re.IGNORECASE),
 )
 
 CLOSED_MARKERS: tuple[str, ...] = (

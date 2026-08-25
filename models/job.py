@@ -13,6 +13,7 @@ SourceCategory = Literal[
     "indeed",
     "google_jobs",
     "company_careers",
+    "employer_boards",
     "other",
 ]
 
@@ -203,5 +204,6 @@ SOURCE_CATEGORY_LABELS: dict[str, str] = {
     "indeed": "Indeed",
     "google_jobs": "Google Jobs / Web",
     "company_careers": "Direct Company Careers",
+    "employer_boards": "Employer Job Boards (direct)",
     "other": "Other",
 }

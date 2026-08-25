@@ -34,6 +34,7 @@ from tools.experience_level import levels_conflict
 # --------------------------------------------------------------------------
 
 SOURCE_OPTIONS: list[tuple[str, str]] = [
+    ("employer_boards", "Employer job boards — direct, no scraping"),
     ("company_careers", "Direct Company Careers"),
     ("linkedin", "LinkedIn — public job pages only"),
     ("indeed", "Indeed — public job pages only"),
@@ -226,7 +227,6 @@ settings = st.session_state.settings
 # --------------------------------------------------------------------------
 
 st.title("🎓 Cougar Career Agent")
-st.subheader("🎯 Full demo")
 st.caption("Fresh jobs. Explainable matching. ATS-ready, truthful tailoring.")
 
 st.warning(

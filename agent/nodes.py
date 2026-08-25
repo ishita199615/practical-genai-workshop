@@ -51,6 +51,10 @@ from tools.firecrawl_search import (
     raw_results_to_models,
     search_with_domain_retry,
 )
+from models.query import SearchQuery
+from tools.ats_boards import load_employers
+from tools.ats_boards import search as ats_search
+from tools.ats_to_posting import to_job_postings
 from tools.job_filter import filter_and_deduplicate, location_conflict
 from tools.job_normalizer import normalize_jobs
 from tools.job_scorer import canonical_skill, rank_jobs
@@ -141,10 +145,102 @@ def load_sample_resume(state: CareerAgentState, deps: AgentDeps) -> dict[str, An
     }
 
 
+def _read_employer_boards(
+    state: CareerAgentState,
+    deps: AgentDeps,
+    now: datetime,
+    freshness_window: str,
+) -> dict[str, Any]:
+    """Read employers' own job boards instead of searching public pages.
+
+    The postings arrive already structured, so they are handed straight to the
+    filter as normalized jobs. Nothing is scraped and no model is called, which
+    is why this route costs nothing and returns the same answer twice.
+    """
+    query = SearchQuery.from_dict(dict(state))
+    employers = load_employers(deps.settings.employers_file)
+    if not employers:
+        return {
+            "raw_jobs": [],
+            "normalized_jobs": [],
+            "structured_source": True,
+            "data_mode": "live",
+            "retrieval_timestamp": now,
+            "errors": [
+                "No employers are registered, so there are no boards to read. "
+                f"Add rows to {deps.settings.employers_file}."
+            ],
+            "progress_events": [event("Employer boards read", "warn")],
+        }
+
+    postings = ats_search(
+        employers,
+        location_terms=[],  # place is enforced by the shared location filter
+        role_pattern=query.role_pattern(),
+        max_age_days=query.max_age_days,
+        search_text=query.role,
+    )
+    jobs = to_job_postings(
+        postings,
+        freshness_window=freshness_window,
+        retrieved_at=now,
+        requested_experience_level=requested_experience_level(state),
+    )
+    updates: dict[str, Any] = {
+        "raw_jobs": [],
+        "normalized_jobs": jobs,
+        "structured_source": True,
+        "data_mode": "live",
+        "cache_is_synthetic": False,
+        "retrieval_timestamp": now,
+        "progress_events": [
+            event(
+                f"{len(employers)} employer board(s) read directly",
+                "ok" if jobs else "warn",
+                detail=(
+                    f"{len(jobs)} posting(s) with a stated location and date — "
+                    "no scraping, no AI extraction"
+                ),
+            )
+        ],
+    }
+    if not jobs:
+        updates["errors"] = [
+            f"No postings matching {query.role} were open on the "
+            f"{len(employers)} registered employer board(s) in the "
+            f"{FRESHNESS_LABELS.get(freshness_window, 'selected window').lower()}."
+        ]
+    return updates
+
+
 def build_search_query(state: CareerAgentState, deps: AgentDeps) -> dict[str, Any]:
     """Combine the query category, freshness window, and level into one request."""
     now = deps.now()
     experience_level = requested_experience_level(state)
+    freshness_window = state.get("freshness_window", "last_24_hours")
+
+    # No search engine is involved on the board route, so showing a query string
+    # would put a search on screen that never ran.
+    if state.get("query_category") == "employer_boards":
+        query = SearchQuery.from_dict(dict(state))
+        return {
+            "search_query": "",
+            "freshness_tbs": "",
+            "freshness_cutoff_utc": freshness_cutoff(freshness_window, now),
+            "source_domains": [],
+            "progress_events": [
+                event(
+                    "Reading employers' own job boards"
+                    f"{_level_suffix(experience_level)}",
+                    detail=(
+                        f"{query.role} · {query.location} · "
+                        f"{FRESHNESS_LABELS.get(freshness_window, '')} — "
+                        "matched on each board's own fields"
+                    ),
+                )
+            ],
+        }
+
     request = build_search_request(
         role=state.get("role", ""),
         location=state.get("location", ""),
@@ -189,6 +285,11 @@ def search_current_jobs(state: CareerAgentState, deps: AgentDeps) -> dict[str, A
     now = deps.now()
     query_category = state.get("query_category", "company_careers")
     freshness_window = state.get("freshness_window", "last_24_hours")
+
+    # Employers' own boards state the location, work mode, and posting date as
+    # fields, so that route skips both the scrape and the model that reads one.
+    if query_category == "employer_boards":
+        return _read_employer_boards(state, deps, now, freshness_window)
 
     request = build_search_request(
         role=state.get("role", ""),
@@ -392,6 +493,20 @@ def _parse_iso(value: Any) -> datetime | None:
 
 def normalize_jobs_node(state: CareerAgentState, deps: AgentDeps) -> dict[str, Any]:
     """Extract structured fields and preserve the cleaned full description."""
+    # A structured source already stated every field this node would ask a model
+    # to read, so re-reading them would only risk disagreeing with the employer.
+    if state.get("structured_source"):
+        jobs = state.get("normalized_jobs", [])
+        return {
+            "normalized_jobs": jobs,
+            "progress_events": [
+                event(
+                    f"{len(jobs)} posting(s) already structured by the employer",
+                    "ok" if jobs else "warn",
+                    detail="Location, work mode, and posting date came as fields",
+                )
+            ],
+        }
     raw_jobs = state.get("raw_jobs", [])
     if not raw_jobs:
         return {"normalized_jobs": [], "progress_events": [event("Pages normalized", "warn")]}

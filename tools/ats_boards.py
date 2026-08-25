@@ -205,34 +205,59 @@ def read_ashby(employer: Employer) -> list[AtsPosting]:
 def read_workday(employer: Employer, search_text: str = "") -> list[AtsPosting]:
     """Read a Workday site — the ATS most large employers run.
 
-    Workday reports age ("Posted Yesterday") rather than a timestamp, so the
-    date is derived from that phrase and marked as the approximation it is.
+    The list endpoint returns only a requisition number in place of a
+    description, and states age ("Posted Yesterday") rather than a date. Each
+    posting's own page carries the full description and a real ``startDate``, so
+    those are fetched too: without them a posting cannot be scored against a
+    resume, and would be discarded for looking like a search snippet.
     """
     base = f"https://{employer.slug}.{employer.host}.myworkdayjobs.com"
-    url = f"{base}/wday/cxs/{employer.slug}/{employer.site}/jobs"
     payload = _request(
-        url,
+        f"{base}/wday/cxs/{employer.slug}/{employer.site}/jobs",
         {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": search_text},
     )
     if not isinstance(payload, dict):
         return []
+
+    listed = payload.get("jobPostings") or []
+    paths = [job.get("externalPath") or "" for job in listed]
+    with ThreadPoolExecutor(max_workers=max(1, min(BOARD_CONCURRENCY, len(paths) or 1))) as pool:
+        details = list(pool.map(lambda p: _workday_detail(employer, base, p), paths))
+
     postings = []
-    for job in payload.get("jobPostings") or []:
-        posted_text = job.get("postedOn") or ""
+    for job, detail in zip(listed, details):
+        listed_text = job.get("postedOn") or ""
         path = job.get("externalPath") or ""
+        description = _strip_html(detail.get("jobDescription") or "")
+        # The posting's own page states a date; the list only states an age.
+        start_date = detail.get("startDate") or ""
+        posted_at = _parse_iso(start_date) or _parse_workday_age(listed_text)
         postings.append(
             AtsPosting(
-                title=job.get("title") or "",
+                title=job.get("title") or detail.get("title") or "",
                 company=employer.name,
-                location=(job.get("locationsText") or "").strip(),
+                location=(
+                    job.get("locationsText") or detail.get("location") or ""
+                ).strip(),
                 url=f"{base}/{employer.site}{path}" if path else base,
                 ats="workday",
-                description=job.get("bulletFields") and " ".join(job["bulletFields"]) or "",
-                posted_at=_parse_workday_age(posted_text),
-                posted_text=posted_text,
+                description=description,
+                posted_at=posted_at,
+                posted_text=start_date or listed_text,
             )
         )
     return postings
+
+
+def _workday_detail(employer: Employer, base: str, path: str) -> dict[str, Any]:
+    """Fetch one Workday posting's page for its description and date."""
+    if not path:
+        return {}
+    payload = _request(f"{base}/wday/cxs/{employer.slug}/{employer.site}{path}")
+    if not isinstance(payload, dict):
+        return {}
+    info = payload.get("jobPostingInfo")
+    return info if isinstance(info, dict) else {}
 
 
 READERS: dict[str, Callable[..., list[AtsPosting]]] = {

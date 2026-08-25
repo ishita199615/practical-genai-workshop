@@ -25,7 +25,6 @@ PAGES = [
     st.Page("pages/0_Home.py", title="Home", icon="🎓", default=True),
     st.Page("pages/1_Learn_the_Steps.py", title="Learn the steps", icon="📚"),
     st.Page("pages/2_Full_Demo.py", title="Full demo", icon="🎯"),
-    st.Page("pages/3_Browse_by_Location.py", title="Browse by location", icon="🌍"),
 ]
 
 st.navigation(PAGES).run()

@@ -92,6 +92,7 @@ class Settings:
     ats_recommendation_threshold: int = 80
     search_timeout_seconds: int = 10
     cache_file: str = "data/cached_jobs.json"
+    employers_file: str = "data/employers.json"
     output_dir: str = "output"
     resume_file: str = DEFAULT_RESUME_FILE
     offline: bool = False
