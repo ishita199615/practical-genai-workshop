@@ -223,6 +223,9 @@ editing.
 
 - **Search your own career.** On the Full demo page, change the role and set the
   experience level to where you actually are.
+- **Run it on your own résumé.** After the workshop, on your own machine:
+  see [docs/USE_YOUR_OWN_RESUME.md](docs/USE_YOUR_OWN_RESUME.md). It covers the
+  template, the checker script, and exactly what leaves your laptop.
 - **Rewrite the résumé.** `data/sample_resume.json` is plain text with a made-up
   person in it. Invent a different fictional candidate and watch every score move.
 - **Change what counts.** `tools/job_scorer.py` decides how a job is scored —

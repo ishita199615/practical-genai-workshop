@@ -1,4 +1,4 @@
-"""Pydantic models for the fictional master resume."""
+"""Pydantic models for the master resume."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ class ExperienceEntry(BaseModel):
 
 
 class ResumeProfile(BaseModel):
-    """The complete fictional applicant profile used by the demo."""
+    """The complete applicant profile the demo scores against."""
 
     candidate_id: str
     name: str

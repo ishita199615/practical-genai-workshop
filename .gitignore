@@ -11,3 +11,7 @@ output/*
 .DS_Store
 practical-genai-workshop-offline.zip
 .claude/
+
+# Personal resumes. The template is tracked; anything you fill in is not.
+data/my_resume*.json
+!data/my_resume.template.json

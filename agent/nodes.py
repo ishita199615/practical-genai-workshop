@@ -118,7 +118,7 @@ def _level_suffix(level: ExperienceLevel) -> str:
 
 
 def load_sample_resume(state: CareerAgentState, deps: AgentDeps) -> dict[str, Any]:
-    """Load and validate the fictional master resume."""
+    """Load and validate the master resume the settings point at."""
     path = deps.settings.resume_path
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -126,14 +126,17 @@ def load_sample_resume(state: CareerAgentState, deps: AgentDeps) -> dict[str, An
     except Exception as exc:  # noqa: BLE001 - user-facing failure
         logger.error("Sample resume could not be loaded: %s", type(exc).__name__)
         return {
-            "errors": ["The fictional sample resume could not be loaded or validated."],
-            "progress_events": [event("Fictional resume loaded", "error")],
+            "errors": ["The resume file could not be loaded or validated."],
+            "progress_events": [event("Resume loaded", "error")],
         }
     return {
         "resume": resume,
         "revision_count": 0,
         "progress_events": [
-            event("Fictional resume loaded", detail=f"{resume.name} (synthetic profile)")
+            event(
+                "Resume loaded",
+                detail=f"{resume.name} ({deps.settings.resume_descriptor})",
+            )
         ],
     }
 
@@ -1061,6 +1064,7 @@ def export_package(state: CareerAgentState, deps: AgentDeps) -> dict[str, Any]:
             output_dir=deps.settings.output_path,
             approved_at=approved_at,
             data_mode=state.get("data_mode", "live"),
+            resume_descriptor=deps.settings.resume_descriptor,
         )
     except OSError as exc:
         logger.error("Export failed: %s", type(exc).__name__)

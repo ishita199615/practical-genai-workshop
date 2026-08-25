@@ -29,7 +29,7 @@ def get_llm() -> Any:
     )
 
 
-@st.cache_resource(show_spinner="Loading the fictional resume and cached postings…")
+@st.cache_resource(show_spinner="Loading the sample resume and cached postings…")
 def get_context() -> Any:
     """Build the lesson data once; it is identical on every machine."""
     return build_lesson_context(settings, llm=get_llm())

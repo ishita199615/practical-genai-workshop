@@ -1,0 +1,71 @@
+{
+  "candidate_id": "my_resume_001",
+  "name": "Your Name",
+  "email": "you@example.com",
+  "phone": "555-000-0000",
+  "location": "Houston, TX",
+
+  "professional_summary": "One or two sentences describing what you do and what you are looking for. Keep it factual - everything here is checked against the rest of this file.",
+
+  "target_roles": [
+    "Data Analyst",
+    "Business Intelligence Analyst"
+  ],
+
+  "skills": [
+    "Python",
+    "SQL",
+    "Excel"
+  ],
+
+  "education": [
+    {
+      "id": "education_1",
+      "degree": "Bachelor of Science in Something",
+      "institution": "Your University",
+      "graduation": "May 2024"
+    }
+  ],
+
+  "experience": [
+    {
+      "id": "experience_1",
+      "title": "Your Job Title",
+      "organization": "Your Employer",
+      "dates": "January 2024-Present",
+      "bullets": [
+        {
+          "id": "experience_1_bullet_1",
+          "text": "Something you actually did, in one sentence."
+        },
+        {
+          "id": "experience_1_bullet_2",
+          "text": "Another thing you actually did."
+        }
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "id": "project_1",
+      "name": "A Project You Built",
+      "bullets": [
+        {
+          "id": "project_1_bullet_1",
+          "text": "What the project did and which tools you used."
+        }
+      ]
+    }
+  ],
+
+  "document_features": {
+    "source_format": "hand_written_json",
+    "parse_success": true,
+    "single_column": true,
+    "standard_headings": true,
+    "uses_tables_for_layout": false,
+    "uses_text_boxes": false,
+    "uses_images_for_critical_text": false
+  }
+}

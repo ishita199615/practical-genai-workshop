@@ -189,9 +189,12 @@ The point of having the source is changing it. Easiest first:
 
 1. **Search your own career.** Change the role and set the experience level to
    where you actually are.
-2. **Rewrite the résumé.** [`data/sample_resume.json`](data/sample_resume.json)
-   is plain text with a made-up person in it. Invent a different fictional
-   candidate and watch every score move.
+2. **Run it on your own résumé.** Copy the template, fill it in, check it with
+   `python scripts/check_resume.py`, and point `RESUME_FILE` at it. Full steps,
+   including what does and does not leave your machine, are in
+   **[docs/USE_YOUR_OWN_RESUME.md](docs/USE_YOUR_OWN_RESUME.md)**. Your file is
+   git-ignored, and the app stops calling the profile fictional once it is
+   loaded.
 3. **Change what counts.** [`tools/job_scorer.py`](tools/job_scorer.py) holds the
    weighting. Shift it, run `pytest`, and see what you broke.
 

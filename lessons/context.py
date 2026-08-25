@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_sample_resume(settings: Settings) -> ResumeProfile:
-    """Load and validate the fictional master resume."""
+    """Load and validate the master resume the settings point at."""
     with settings.resume_path.open("r", encoding="utf-8") as handle:
         return ResumeProfile.model_validate(json.load(handle))
 

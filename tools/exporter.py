@@ -81,6 +81,7 @@ def build_markdown(
     validation: ValidationReport,
     approved_at: datetime,
     data_mode: str,
+    resume_descriptor: str = "fictional demonstration profile",
 ) -> str:
     """Render the human-readable application package."""
     lines: list[str] = []
@@ -88,7 +89,7 @@ def build_markdown(
 
     add("# Application Package")
     add("")
-    add(f"**Candidate:** {resume.name} — fictional demonstration profile")
+    add(f"**Candidate:** {resume.name} — {resume_descriptor}")
     add(f"**Approved at:** {_format_datetime(approved_at)}")
     add(f"**Data mode:** {'LIVE PUBLIC RESULTS' if data_mode == 'live' else 'CACHED DEMONSTRATION RESULTS'}")
     add("")
@@ -291,6 +292,7 @@ def build_json(
     validation: ValidationReport,
     approved_at: datetime,
     data_mode: str,
+    resume_descriptor: str = "fictional demonstration profile",
 ) -> dict[str, Any]:
     """Build the machine-readable application package."""
     return {
@@ -298,7 +300,7 @@ def build_json(
         "candidate": {
             "name": resume.name,
             "candidate_id": resume.candidate_id,
-            "notice": "Fictional demonstration profile.",
+            "notice": f"{resume_descriptor[:1].upper()}{resume_descriptor[1:]}.",
         },
         "data_mode": data_mode,
         "approved_at": approved_at.isoformat(),
@@ -333,6 +335,7 @@ def export_package(
     output_dir: str | Path,
     approved_at: datetime | None = None,
     data_mode: str = "live",
+    resume_descriptor: str = "fictional demonstration profile",
 ) -> list[str]:
     """Write the Markdown and JSON package and return the file paths.
 
@@ -357,6 +360,7 @@ def export_package(
         "validation": validation,
         "approved_at": moment,
         "data_mode": data_mode,
+        "resume_descriptor": resume_descriptor,
     }
 
     markdown_path.write_text(build_markdown(**payload), encoding="utf-8")

@@ -25,9 +25,18 @@ st.title("🎓 Cougar Career Agent")
 st.caption("From prompts to agents — a hands-on workshop build.")
 
 st.warning(
-    "Demo uses a fictional resume and public job data. It does not submit "
-    "applications. ATS readiness is estimated using a transparent workshop "
-    "rubric, not an employer's proprietary ATS.",
+    (
+        "You are running this against your own resume. It is not submitted "
+        "anywhere, but with a Gemini key configured its text is sent to "
+        "Google's API. ATS readiness is estimated using a transparent "
+        "workshop rubric, not an employer's proprietary ATS."
+    )
+    if settings.using_custom_resume
+    else (
+        "Demo uses a fictional resume and public job data. It does not submit "
+        "applications. ATS readiness is estimated using a transparent workshop "
+        "rubric, not an employer's proprietary ATS."
+    ),
     icon="⚠️",
 )
 

@@ -14,6 +14,11 @@ from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
+#: The synthetic profile the workshop demo ships with. Anything else means the
+#: operator pointed the app at a resume of their own, which changes what the
+#: interface is allowed to claim about the data it is handling.
+DEFAULT_RESUME_FILE = "data/sample_resume.json"
+
 VALID_DEMO_MODES = {"live", "cached", "auto"}
 VALID_SOURCE_CATEGORIES = {
     "all",
@@ -77,6 +82,7 @@ class Settings:
     search_timeout_seconds: int = 10
     cache_file: str = "data/cached_jobs.json"
     output_dir: str = "output"
+    resume_file: str = DEFAULT_RESUME_FILE
     startup_warnings: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -115,8 +121,26 @@ class Settings:
 
     @property
     def resume_path(self) -> Path:
-        """Absolute path to the fictional sample resume."""
-        return PROJECT_ROOT / "data" / "sample_resume.json"
+        """Absolute path to the resume the app should load."""
+        return _resolve(self.resume_file)
+
+    @property
+    def using_custom_resume(self) -> bool:
+        """True when the operator supplied a resume of their own.
+
+        The interface must not describe a real person's data as fictional, so
+        every user-facing label and the exported package key off this.
+        """
+        return self.resume_path != _resolve(DEFAULT_RESUME_FILE)
+
+    @property
+    def resume_descriptor(self) -> str:
+        """Short, accurate description of whose resume is loaded."""
+        return (
+            "your own resume"
+            if self.using_custom_resume
+            else "fictional demonstration profile"
+        )
 
 
 def _resolve(value: str) -> Path:
@@ -149,6 +173,20 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
             "claim review will use deterministic offline fallbacks."
         )
 
+    resume_file = (os.getenv("RESUME_FILE") or DEFAULT_RESUME_FILE).strip()
+    if not (_resolve(resume_file)).exists():
+        warnings.append(
+            f"RESUME_FILE points at '{resume_file}', which does not exist. "
+            f"Falling back to the sample profile at {DEFAULT_RESUME_FILE}."
+        )
+        resume_file = DEFAULT_RESUME_FILE
+    elif resume_file != DEFAULT_RESUME_FILE and gemini_key:
+        warnings.append(
+            "A personal resume is loaded and a Gemini key is configured, so "
+            "resume text will be sent to Google's API. Set DEMO_MODE=cached "
+            "and remove GEMINI_API_KEY to keep everything on this machine."
+        )
+
     return Settings(
         firecrawl_api_key=firecrawl_key,
         firecrawl_base_url=(
@@ -173,5 +211,6 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
         search_timeout_seconds=_int_env("SEARCH_TIMEOUT_SECONDS", 10),
         cache_file=(os.getenv("CACHE_FILE") or "data/cached_jobs.json").strip(),
         output_dir=(os.getenv("OUTPUT_DIR") or "output").strip(),
+        resume_file=resume_file,
         startup_warnings=tuple(warnings),
     )
