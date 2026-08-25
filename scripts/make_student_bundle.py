@@ -18,7 +18,7 @@ import zipfile
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-BUNDLE_NAME = "cougar-career-agent-student.zip"
+BUNDLE_NAME = "practical-genai-workshop-offline.zip"
 
 # Directories never shipped: virtual environments are machine-specific, caches
 # and outputs are regenerated, and .git may hold historical secrets.
@@ -109,7 +109,7 @@ def main() -> int:
 
     with zipfile.ZipFile(bundle_path, "w", zipfile.ZIP_DEFLATED) as archive:
         for path in files:
-            archive.write(path, Path("cougar-career-agent") / path.relative_to(PROJECT_ROOT))
+            archive.write(path, Path("practical-genai-workshop") / path.relative_to(PROJECT_ROOT))
 
     findings = scan_for_secrets(bundle_path)
     if findings:

@@ -12,6 +12,7 @@ are optional and only add live web search.
 | Disk space | ~1 GB |
 | Python | 3.11 or 3.12 (3.10 works too) |
 | API keys | None required |
+| Code | [github.com/ishita199615/practical-genai-workshop](https://github.com/ishita199615/practical-genai-workshop) |
 
 ---
 
@@ -34,27 +35,56 @@ without it, run the installer again and choose Modify.
 
 Close and reopen your terminal afterwards, then check the version again.
 
-## 2. Unzip the project
+## 2. Get the code
 
-Unzip `cougar-career-agent-student.zip` somewhere easy to type — your Desktop is
-ideal. You should get a folder named `cougar-career-agent` containing `app.py`.
+The project lives here:
+
+**<https://github.com/ishita199615/practical-genai-workshop>**
+
+Pick whichever route suits you. Both give you the same files.
+
+### Option A — Download ZIP (no extra software)
+
+1. Open the link above
+2. Click the green **Code** button, then **Download ZIP**
+3. Unzip it to your Desktop
+
+You get a folder named **`practical-genai-workshop-main`**. Note the `-main` on
+the end — GitHub adds it, and you will need it in the next step.
+
+### Option B — Clone it (if you have git)
+
+```bash
+git clone https://github.com/ishita199615/practical-genai-workshop.git
+```
+
+You get a folder named **`practical-genai-workshop`**, with no suffix.
+
+> **No internet?** Your instructor can hand you
+> `practical-genai-workshop-offline.zip`, which unzips to
+> `practical-genai-workshop` — the same as Option B.
 
 ## 3. Open a terminal in that folder
+
+Use the folder name from whichever option you chose above. These examples assume
+Option A, so drop the `-main` if you cloned.
 
 Windows PowerShell:
 
 ```powershell
-cd "$HOME\Desktop\cougar-career-agent"
+cd "$HOME\Desktop\practical-genai-workshop-main"
 ```
 
 macOS Terminal:
 
 ```bash
-cd ~/Desktop/cougar-career-agent
+cd ~/Desktop/practical-genai-workshop-main
 ```
 
 Run `dir` (Windows) or `ls` (macOS). You should see `app.py`, `requirements.txt`,
-and folders named `lessons`, `agent`, and `tools`.
+and folders named `lessons`, `agent`, and `tools`. If you get "no such file or
+directory", the folder name is probably the other one — check with `ls ~/Desktop`
+(macOS) or `dir $HOME\Desktop` (Windows).
 
 ## 4. Create a virtual environment
 

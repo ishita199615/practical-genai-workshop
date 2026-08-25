@@ -9,4 +9,4 @@ output/*
 !output/.gitkeep
 *.log
 .DS_Store
-cougar-career-agent-student.zip
+practical-genai-workshop-offline.zip

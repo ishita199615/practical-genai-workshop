@@ -7,11 +7,16 @@ Generative AI* workshop.
 It runs with **no API key and no internet**. Nothing to sign up for.
 
 ```bash
+git clone https://github.com/ishita199615/practical-genai-workshop.git
+cd practical-genai-workshop
+
 python -m venv .venv
 .venv\Scripts\Activate.ps1          # macOS: source .venv/bin/activate
 python -m pip install -r requirements.txt
 streamlit run app.py
 ```
+
+No git? Use the green **Code** button above, then **Download ZIP**.
 
 Full instructions, including installing Python: **[SETUP.md](SETUP.md)**
 
@@ -229,3 +234,14 @@ meter quota **per model**, and some allow only 20 requests a day while one full
 run uses about 13. That is why `LLM_MODELS` in `.env` lists several models — when
 one is exhausted the app falls through to the next automatically. If they all run
 dry, the demo keeps working on its offline path and simply says so.
+
+---
+
+## Licence
+
+[MIT](LICENSE) — take it, change it, teach with it, build on it. Attribution is
+appreciated but not required.
+
+The licence covers the code. It does not extend to the University of Houston
+System's name or branding, and publishing this openly does not imply
+institutional endorsement.
