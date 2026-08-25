@@ -1,5 +1,4 @@
-# Practical Generative AI — Workshop
-## Demo2
+# Demo 2- Cougar Career Agent 
 
 A working AI agent you can run on your own laptop, read the source of, and take
 apart. Built for the University of Houston System's 60-minute *Practical
