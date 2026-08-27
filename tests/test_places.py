@@ -44,8 +44,10 @@ class TestAmbiguousStateNames:
 
     def test_a_state_name_followed_by_a_city_is_another_city(self):
         """"Chicago, New York, San Francisco" lists three cities, not a state."""
-        labels = [p.city_label for p in parse_places("Chicago, New York, San Francisco")]
-        assert labels == ["Chicago", "New York", "San Francisco"]
+        places = parse_places("Chicago, New York, San Francisco")
+        assert [p.city for p in places] == ["Chicago", "New York", "San Francisco"]
+        # Each well-known city also implies its own state, not a shared one.
+        assert [p.region for p in places] == ["IL", "NY", "CA"]
 
     def test_washington_dc_keeps_its_region(self):
         place = parse_place("Washington, DC")

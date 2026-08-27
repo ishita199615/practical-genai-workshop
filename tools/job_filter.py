@@ -17,11 +17,8 @@ from models.job import (
 )
 from tools.employment_type import types_conflict
 from tools.experience_level import levels_conflict
-from tools.firecrawl_search import (
-    US_STATE_NAMES,
-    canonicalize_job_url,
-    looks_like_generic_listing,
-)
+from tools.firecrawl_search import canonicalize_job_url, looks_like_generic_listing
+from tools.places import Place, macro_region_covers, parse_place, parse_places
 from tools.job_normalizer import MIN_DESCRIPTION_CHARS
 
 _NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
@@ -151,33 +148,76 @@ def requested_location_terms(requested_location: str) -> list[str]:
 def location_conflict(requested_location: str, job: JobPosting) -> bool:
     """True when a posting names a place that is clearly not the one requested.
 
-    Absence of evidence is never treated as a conflict: a posting that states no
-    location, or one tied to no particular place, is kept. "Remote" alone is not
-    a pass — a role advertised as remote *from Hong Kong* still names a region
-    the requested city is not in, so it is the stated place that decides.
+    The request is matched at the level it was written. "Houston, TX" asks about
+    a city, so only that city and its commuting towns satisfy it. "Texas" asks
+    about a region and "United States" about a country, and every city inside
+    one satisfies it — which is why this compares parsed places rather than
+    searching for the request's text inside the posting's. Looking for the words
+    "United States" inside "Chicago" finds nothing, though Chicago is in it.
+
+    Absence of evidence is never a conflict. A posting that states no location,
+    or one tied to no particular place, is kept, as is one whose stated place is
+    simply not specific enough to rule out. Only positive evidence of a
+    *different* place at the requested level removes a posting.
     """
-    terms = requested_location_terms(requested_location)
-    if not terms:
+    request = parse_place(requested_location)
+    if not request.is_known:
         return False
-
-    job_location = normalize_location(job.location)
-    if not job_location or job_location in LOCATION_ANYWHERE:
-        return False
-    if job_location in NATIONWIDE_US and requested_region_is_us(requested_location):
-        return False
-
-    words = set(job_location.split())
     return not any(
-        term in job_location if " " in term else term in words for term in terms
+        _place_satisfies(request, place) for place in parse_places(job.location)
     )
 
 
-def requested_region_is_us(requested_location: str) -> bool:
-    """True when the requested location names a US state."""
-    return any(
-        US_STATE_NAMES.get(part.strip().upper())
-        for part in (requested_location or "").split(",")
-    )
+def _place_satisfies(request: Place, place: Place) -> bool:
+    """True when one place a posting names could be the requested place."""
+    if not place.is_known:
+        return True
+
+    if request.city:
+        if place.city:
+            return _same_city(request.city, place.city)
+        # No city stated. A posting scoped to a wider area that contains the
+        # requested city could still be it; one naming a different wider area
+        # could not.
+        return _wider_area_could_contain(request, place)
+
+    if request.region:
+        if place.region:
+            return place.region == request.region
+        return _country_allows(request, place)
+
+    return _country_allows(request, place)
+
+
+def _same_city(requested_city: str, posting_city: str) -> bool:
+    """True when a posting's city is the requested one or a commuting town."""
+    requested = normalize_location(requested_city)
+    posting = normalize_location(posting_city)
+    if not requested or not posting:
+        return False
+    return posting in {requested, *METRO_NEIGHBOURS.get(requested, ())}
+
+
+def _wider_area_could_contain(request: Place, place: Place) -> bool:
+    """True when a region- or country-wide posting could cover the request."""
+    if place.region and request.region:
+        return place.region == request.region
+    return _country_allows(request, place)
+
+
+def _country_allows(request: Place, place: Place) -> bool:
+    """True unless the posting states a country other than the requested one.
+
+    A posting whose country cannot be read is kept: not knowing where it is is
+    not evidence that it is somewhere else. A continent is the exception — a
+    posting scoped to Asia does say, in its way, that it is not in the US.
+    """
+    if not request.country:
+        return True
+    if place.country:
+        return place.country == request.country
+    covered = macro_region_covers(place.region, request.country)
+    return True if covered is None else covered
 
 
 def dedup_key(job: JobPosting) -> str:

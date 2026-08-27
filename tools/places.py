@@ -100,11 +100,17 @@ US_STATE_CODES = {code for code in US_STATES.values()}
 # specific enough to name a country.
 MACRO_REGIONS = {
     "asia": "Asia", "apac": "APAC", "asia pacific": "APAC",
-    "europe": "Europe", "emea": "EMEA", "americas": "Americas",
-    "north america": "North America", "south america": "South America",
-    "latam": "LATAM", "latin america": "LATAM", "africa": "Africa",
-    "middle east": "Middle East", "oceania": "Oceania", "global": "Global",
-    "worldwide": "Global", "international": "Global",
+    "south east asia": "Asia", "southeast asia": "Asia", "sea": "Asia",
+    "south asia": "Asia", "east asia": "Asia", "greater china": "Asia",
+    "europe": "Europe", "emea": "EMEA", "western europe": "Europe",
+    "eastern europe": "Europe", "nordics": "Europe", "benelux": "Europe",
+    "dach": "Europe", "uk and ireland": "Europe", "uk i": "Europe",
+    "americas": "Americas", "north america": "North America",
+    "south america": "South America", "latam": "LATAM",
+    "latin america": "LATAM", "africa": "Africa", "mena": "Middle East",
+    "middle east": "Middle East", "oceania": "Oceania", "anz": "Oceania",
+    "global": "Global", "worldwide": "Global", "international": "Global",
+    "emea apac": "Global",
 }
 
 # Cities common enough in board data to name their country unambiguously.
@@ -352,6 +358,76 @@ def _parse_tokens(text: str, *, is_remote: bool, raw: str) -> list[Place]:
 # name is also a complete city name.
 CITY_STATES = {"Singapore", "Hong Kong", "Macau", "Monaco", "Luxembourg"}
 
+# The state a bare US city name implies, for the cities boards name most often.
+# Only unambiguous ones: "Portland" and "Springfield" are deliberately absent.
+CITY_REGION = {
+    "san francisco": "CA", "los angeles": "CA", "san jose": "CA",
+    "mountain view": "CA", "palo alto": "CA", "san diego": "CA",
+    "new york": "NY", "new york city": "NY", "brooklyn": "NY",
+    "chicago": "IL", "seattle": "WA", "bellevue": "WA", "redmond": "WA",
+    "boston": "MA", "cambridge": "MA", "austin": "TX", "houston": "TX",
+    "dallas": "TX", "san antonio": "TX", "denver": "CO", "boulder": "CO",
+    "atlanta": "GA", "miami": "FL", "orlando": "FL", "philadelphia": "PA",
+    "pittsburgh": "PA", "phoenix": "AZ", "las vegas": "NV",
+    "salt lake city": "UT", "minneapolis": "MN", "detroit": "MI",
+    "nashville": "TN", "charlotte": "NC", "raleigh": "NC",
+}
+
+# Roughly which countries a continent- or market-level label covers. Used only
+# to rule a place *out*: a posting scoped to Asia is not one in the US.
+MACRO_REGION_COUNTRIES: dict[str, set[str]] = {
+    "Asia": {
+        "India", "Singapore", "Japan", "China", "Hong Kong", "Taiwan",
+        "South Korea", "Malaysia", "Thailand", "Vietnam", "Philippines",
+        "Indonesia", "Israel",
+    },
+    "APAC": {
+        "India", "Singapore", "Japan", "China", "Hong Kong", "Taiwan",
+        "South Korea", "Malaysia", "Thailand", "Vietnam", "Philippines",
+        "Indonesia", "Australia", "New Zealand",
+    },
+    "Europe": {
+        "United Kingdom", "Germany", "France", "Netherlands", "Ireland",
+        "Spain", "Italy", "Poland", "Portugal", "Sweden", "Denmark",
+        "Norway", "Finland", "Switzerland", "Belgium", "Austria",
+        "Romania", "Czech Republic", "Hungary", "Greece", "Ukraine",
+    },
+    "North America": {"United States", "Canada", "Mexico"},
+    "Americas": {
+        "United States", "Canada", "Mexico", "Brazil", "Argentina",
+        "Colombia", "Chile",
+    },
+    "LATAM": {"Mexico", "Brazil", "Argentina", "Colombia", "Chile"},
+    "Middle East": {
+        "United Arab Emirates", "Saudi Arabia", "Israel", "Turkey", "Egypt",
+    },
+    "Africa": {"South Africa", "Nigeria", "Kenya", "Egypt"},
+    "Oceania": {"Australia", "New Zealand"},
+    "South America": {"Brazil", "Argentina", "Colombia", "Chile"},
+    "EMEA": {
+        "United Kingdom", "Germany", "France", "Netherlands", "Ireland",
+        "Spain", "Italy", "Poland", "Portugal", "Sweden", "Denmark",
+        "Norway", "Finland", "Switzerland", "Belgium", "Austria",
+        "Romania", "Czech Republic", "Hungary", "Greece", "Ukraine",
+        "United Arab Emirates", "Saudi Arabia", "Israel", "Turkey",
+        "Egypt", "South Africa", "Nigeria", "Kenya",
+    },
+}
+
+
+def macro_region_covers(region: str, country: str) -> bool | None:
+    """Whether a macro region contains a country.
+
+    ``None`` when the label is not a macro region, or is global and so covers
+    everywhere — in both cases there is nothing to rule out.
+    """
+    if not region or not country or region == "Global":
+        return None
+    countries = MACRO_REGION_COUNTRIES.get(region)
+    if countries is None:
+        return None
+    return country in countries
+
 
 def _infer_country(place: Place) -> Place:
     """Fill in a country only where the place already implies one."""
@@ -364,9 +440,13 @@ def _infer_country(place: Place) -> Place:
     if place.region and place.region in US_STATE_CODES:
         return Place(place.city, place.region, "United States", place.is_remote, place.raw)
     if place.city:
-        known = CITY_COUNTRY.get(_normalize(place.city), UNKNOWN)
+        key = _normalize(place.city)
+        known = CITY_COUNTRY.get(key, UNKNOWN)
         if known:
-            return Place(place.city, place.region, known, place.is_remote, place.raw)
+            # A bare US city also implies its state, which lets a region search
+            # tell Chicago from Houston without spelling either state out.
+            region = place.region or CITY_REGION.get(key, UNKNOWN)
+            return Place(place.city, region, known, place.is_remote, place.raw)
     return place
 
 

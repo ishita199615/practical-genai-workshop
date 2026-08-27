@@ -110,6 +110,36 @@ class TestLocationFiltering:
     def test_no_requested_location_filters_nothing(self):
         assert not location_conflict("", make_job(location="Singapore"))
 
+    def test_a_country_search_keeps_every_city_in_it(self):
+        """Searching "United States" must not require the words on the posting."""
+        for city in ("Austin", "Chicago", "New York, NY", "San Francisco, CA"):
+            job = make_job(location=city, work_mode="onsite")
+            assert not location_conflict("United States", job), city
+
+    def test_a_country_search_drops_other_countries(self):
+        for city in ("Bengaluru, India", "London, United Kingdom", "Singapore"):
+            job = make_job(location=city, work_mode="onsite")
+            assert location_conflict("United States", job), city
+
+    def test_a_continent_is_evidence_of_a_different_country(self):
+        job = make_job(location="Asia / South East Asia", work_mode="onsite")
+        assert location_conflict("United States", job)
+
+    def test_a_containing_region_still_qualifies(self):
+        for label in ("North America", "Global", "Worldwide"):
+            job = make_job(location=label, work_mode="onsite")
+            assert not location_conflict("United States", job), label
+
+    def test_a_state_search_matches_cities_in_that_state(self):
+        for city in ("Houston, TX", "Austin", "Dallas"):
+            job = make_job(location=city, work_mode="onsite")
+            assert not location_conflict("Texas", job), city
+
+    def test_a_state_search_drops_cities_elsewhere(self):
+        for city in ("Chicago", "New York, NY", "San Francisco, CA"):
+            job = make_job(location=city, work_mode="onsite")
+            assert location_conflict("Texas", job), city
+
     def test_the_removal_reason_names_both_places(self):
         job = make_job(location="Singapore", work_mode="onsite")
         reason = rejection_reason(
