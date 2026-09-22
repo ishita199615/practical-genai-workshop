@@ -17,6 +17,7 @@ from tools.firecrawl_search import (
     is_safe_public_job_url,
     looks_like_generic_listing,
     raw_results_to_models,
+    SOURCE_DOMAIN_RULES,
 )
 
 ROLE = "Data Analyst Intern"
@@ -229,6 +230,28 @@ class TestExperienceLevelInSearchRequest:
         assert with_level.location == without.location
         assert with_level.query != without.query
 
+    @pytest.mark.parametrize(
+        "location,expected",
+        [
+            ("Houston, TX", "Houston,Texas,United States"),
+            ("Texas", "Texas,United States"),
+            ("United States", "United States"),
+            ("United States of America", "United States"),
+            ("USA", "United States"),
+        ],
+    )
+    def test_a_country_is_not_appended_to_itself(self, location, expected):
+        """"United States,United States" is not a place Firecrawl can locate."""
+        request = build_search_request(
+            role=ROLE,
+            location=location,
+            work_mode="Any",
+            query_category="company_careers",
+            freshness_window="last_3_days",
+            now=NOW,
+        )
+        assert request.location == expected
+
     def test_payload_reports_the_level_as_application_metadata(self):
         payload = build_search_request(
             role=ROLE,
@@ -273,6 +296,28 @@ class TestDomainFilters:
     def test_broad_categories_have_no_forced_domain(self):
         assert domain_filter_for("all") == []
         assert domain_filter_for("google_jobs") == []
+
+    def test_employer_workday_tenants_are_searchable(self):
+        """Employers on Workday live under myworkdayjobs.com, not Workday's own site.
+
+        chevron.wd5.myworkdayjobs.com is a board; careers.workday.com is
+        Workday the employer. Leaving the former out hid every Workday
+        employer from the search.
+        """
+        assert "myworkdayjobs.com" in domain_filter_for("company_careers")
+
+    def test_every_recognised_career_domain_can_be_searched(self):
+        """A domain the classifier knows but the filter omits is unreachable.
+
+        The two lists drifted apart once already, which silently excluded a
+        whole applicant-tracking system from Direct Company Careers.
+        """
+        recognised = {
+            domain
+            for domain, (category, _) in SOURCE_DOMAIN_RULES.items()
+            if category == "company_careers"
+        }
+        assert recognised <= set(domain_filter_for("company_careers"))
 
 
 class TestFreshnessMapping:

@@ -22,6 +22,12 @@ LISTING_PAGES = [
     "https://boards.greenhouse.io/",
     "https://example.com/careers",
     "https://example.com/jobs",
+    # An employer's whole board on an ATS: the slug alone, with no posting
+    # after it. These reached the ranking titled "Jobs" and were scored.
+    "https://job-boards.greenhouse.io/anthropic",
+    "https://job-boards.greenhouse.io/grafanalabs/",
+    "https://jobs.lever.co/portcast?department=Data%20Science",
+    "https://jobs.ashbyhq.com/console",
 ]
 
 REAL_OPENINGS = [
@@ -32,6 +38,11 @@ REAL_OPENINGS = [
     "https://www.remotefront.com/remote-jobs/ing-data-analyst-internship-2asor",
     "https://jobs.ashbyhq.com/gulfcoast/8b21-bi-intern",
     "https://www.indeed.com/viewjob?jk=abc123",
+    # Stripe hosts its Greenhouse board on its own domain and gives every
+    # opening a search path. The id is what names the job.
+    "https://stripe.com/jobs/search?gh_jid=8172508",
+    "https://www.linkedin.com/jobs/search?currentJobId=4188220561",
+    "https://www.indeed.com/jobs?jk=abc123",
 ]
 
 
@@ -52,3 +63,19 @@ def test_a_job_id_ending_in_the_word_jobs_is_not_a_listing():
     segment like "…-analyst-jobs" counts.
     """
     assert looks_like_generic_listing("https://x.com/jobs/senior-data-analyst") is False
+
+
+def test_a_search_page_without_a_posting_id_is_still_a_listing():
+    """Only an id rescues a search path — a query alone does not.
+
+    The same LinkedIn path is a listing or an opening depending on whether it
+    names a job, so the two must not be conflated.
+    """
+    assert looks_like_generic_listing(
+        "https://www.linkedin.com/jobs/search?keywords=data%20analyst"
+    ) is True
+    assert looks_like_generic_listing("https://stripe.com/jobs/search") is True
+    # A tracking parameter that merely resembles an id must not rescue it.
+    assert looks_like_generic_listing(
+        "https://stripe.com/jobs/search?gh_jid_src=linkedin"
+    ) is True

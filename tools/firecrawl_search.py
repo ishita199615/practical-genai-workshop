@@ -32,6 +32,7 @@ from models.job import (
     normalize_work_mode,
 )
 from tools.experience_level import level_query_terms
+from tools.places import parse_place
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,11 @@ SOURCE_DOMAIN_RULES: dict[str, tuple[str, str]] = {
     "myworkdayjobs.com": ("company_careers", "Workday Careers"),
 }
 
+# Must stay in step with the Workday entries in SOURCE_DOMAIN_RULES: a domain
+# the classifier recognises but the search may not return is unreachable.
+# Employers on Workday each get their own tenant under myworkdayjobs.com —
+# chevron.wd5, bakerhughes.wd5 — which is where the postings are.
+# careers.workday.com is Workday's own careers site, not a board of theirs.
 COMPANY_CAREER_DOMAINS: list[str] = [
     "boards.greenhouse.io",
     "job-boards.greenhouse.io",
@@ -59,6 +65,7 @@ COMPANY_CAREER_DOMAINS: list[str] = [
     "jobs.ashbyhq.com",
     "jobs.smartrecruiters.com",
     "careers.workday.com",
+    "myworkdayjobs.com",
 ]
 
 CATEGORY_DOMAIN_FILTERS: dict[str, list[str]] = {
@@ -101,6 +108,12 @@ TRACKING_PARAMS: frozenset[str] = frozenset(
         "lipi",
     }
 )
+
+# Query-string keys that name one specific posting. A URL carrying one opens a
+# single job however generic its path reads: Stripe publishes every Greenhouse
+# posting as "/jobs/search?gh_jid=…", and LinkedIn and Indeed likewise hang a
+# real opening off a search path. The id is the identity, so the path loses.
+POSTING_ID_PARAMS: frozenset[str] = frozenset({"gh_jid", "currentjobid", "jk"})
 
 # Paths that are search or index pages rather than one specific opening.
 GENERIC_PATH_MARKERS: tuple[str, ...] = (
@@ -401,9 +414,40 @@ def _humanize_company(slug: str) -> str | None:
     return " ".join(word if word.isupper() else word.capitalize() for word in words)
 
 
+def _is_ats_board_root(parsed: Any) -> bool:
+    """True for an employer's whole board on an ATS, rather than one posting.
+
+    These hosts put the employer in the first path segment and the posting
+    after it, so a lone segment is the board itself — greenhouse.io/anthropic
+    lists Anthropic's openings and is not one. Such pages were reaching the
+    ranking titled "Jobs", scored against the resume like a real posting.
+    """
+    host = parsed.netloc.lower().split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    if not any(
+        host == domain or host.endswith("." + domain) for domain in _ATS_COMPANY_SLOT
+    ):
+        return False
+    return len([segment for segment in parsed.path.split("/") if segment]) < 2
+
+
 def looks_like_generic_listing(url: str) -> bool:
-    """True when the URL is a search or index page rather than one opening."""
+    """True when the URL is a search or index page rather than one opening.
+
+    A posting id in the query string settles it before the path is read. Many
+    employers host their board on their own domain and hang each opening off a
+    search path, so judging "/jobs/search?gh_jid=8172508" by its path alone
+    throws away a real job.
+    """
     parsed = urlparse(url)
+    if any(
+        key.lower() in POSTING_ID_PARAMS
+        for key, _ in parse_qsl(parsed.query, keep_blank_values=False)
+    ):
+        return False
+    if _is_ats_board_root(parsed):
+        return True
     path = parsed.path.rstrip("/").lower()
     if path in GENERIC_EXACT_PATHS:
         return True
@@ -502,10 +546,18 @@ def build_search_request(
 
 
 def _firecrawl_location(location: str) -> str:
-    """Format the user's location for the Firecrawl ``location`` field."""
+    """Format the user's location for the Firecrawl ``location`` field.
+
+    A location that names only a country is passed through as itself. Appending
+    the country to a country produced "United States,United States", which is
+    not a place.
+    """
     text = location.strip()
     if not text:
         return "United States"
+    place = parse_place(text)
+    if place.country and not place.city and not place.region:
+        return place.country
     if "," in text:
         city, region = (part.strip() for part in text.split(",", 1))
         region_full = US_STATE_NAMES.get(region.upper(), region)
