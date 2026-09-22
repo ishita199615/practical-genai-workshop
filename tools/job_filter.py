@@ -159,19 +159,31 @@ def location_conflict(requested_location: str, job: JobPosting) -> bool:
     or one tied to no particular place, is kept, as is one whose stated place is
     simply not specific enough to rule out. Only positive evidence of a
     *different* place at the requested level removes a posting.
+
+    A posting naming several places is read as a whole. One it could be keeps
+    it; otherwise the places that *can* be read decide, and the ones that
+    cannot stay silent rather than vouching for the rest. A role open across
+    "Singapore / Bangalore / Chennai" is not in the United States merely
+    because Chennai is a city this parser does not recognise.
     """
     request = parse_place(requested_location)
     if not request.is_known:
         return False
-    return not any(
-        _place_satisfies(request, place) for place in parse_places(job.location)
-    )
+    verdicts = [_place_verdict(request, place) for place in parse_places(job.location)]
+    if any(verdict is True for verdict in verdicts):
+        return False
+    return any(verdict is False for verdict in verdicts)
 
 
-def _place_satisfies(request: Place, place: Place) -> bool:
-    """True when one place a posting names could be the requested place."""
+def _place_verdict(request: Place, place: Place) -> bool | None:
+    """Whether one place a posting names is the requested one.
+
+    ``None`` means the place carries no evidence either way, which is distinct
+    from satisfying the request: it keeps a posting on its own but never
+    outvotes a sibling that names somewhere else.
+    """
     if not place.is_known:
-        return True
+        return None
 
     if request.city:
         if place.city:
@@ -179,14 +191,14 @@ def _place_satisfies(request: Place, place: Place) -> bool:
         # No city stated. A posting scoped to a wider area that contains the
         # requested city could still be it; one naming a different wider area
         # could not.
-        return _wider_area_could_contain(request, place)
+        return _wider_area_verdict(request, place)
 
     if request.region:
         if place.region:
             return place.region == request.region
-        return _country_allows(request, place)
+        return _country_verdict(request, place)
 
-    return _country_allows(request, place)
+    return _country_verdict(request, place)
 
 
 def _same_city(requested_city: str, posting_city: str) -> bool:
@@ -198,26 +210,25 @@ def _same_city(requested_city: str, posting_city: str) -> bool:
     return posting in {requested, *METRO_NEIGHBOURS.get(requested, ())}
 
 
-def _wider_area_could_contain(request: Place, place: Place) -> bool:
-    """True when a region- or country-wide posting could cover the request."""
+def _wider_area_verdict(request: Place, place: Place) -> bool | None:
+    """Whether a region- or country-wide posting could cover the request."""
     if place.region and request.region:
         return place.region == request.region
-    return _country_allows(request, place)
+    return _country_verdict(request, place)
 
 
-def _country_allows(request: Place, place: Place) -> bool:
-    """True unless the posting states a country other than the requested one.
+def _country_verdict(request: Place, place: Place) -> bool | None:
+    """Whether the posting's country is the requested one.
 
-    A posting whose country cannot be read is kept: not knowing where it is is
-    not evidence that it is somewhere else. A continent is the exception — a
+    ``None`` when the posting's country cannot be read: not knowing where it is
+    is not evidence that it is somewhere else. A continent is the exception — a
     posting scoped to Asia does say, in its way, that it is not in the US.
     """
     if not request.country:
-        return True
+        return None
     if place.country:
         return place.country == request.country
-    covered = macro_region_covers(place.region, request.country)
-    return True if covered is None else covered
+    return macro_region_covers(place.region, request.country)
 
 
 def dedup_key(job: JobPosting) -> str:

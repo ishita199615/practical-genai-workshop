@@ -116,6 +116,32 @@ class TestLocationFiltering:
             job = make_job(location=city, work_mode="onsite")
             assert not location_conflict("United States", job), city
 
+    @pytest.mark.parametrize(
+        "abroad",
+        ["Peru", "Lima, Peru", "Serbia", "Costa Rica", "Cambodia", "Venezuela"],
+    )
+    def test_a_country_the_parser_did_not_know_is_not_kept_as_unknown(self, abroad):
+        """An unlisted country parsed as a city, and unknown places are kept.
+
+        That put a Peru posting on screen under a search for the United States.
+        """
+        assert location_conflict("United States", make_job(location=abroad))
+
+    def test_one_unreadable_city_does_not_rescue_a_list_of_foreign_ones(self):
+        """A role open across Asia is not in the US because one city is unknown."""
+        job = make_job(location="Singapore / Bangalore / Chennai / Cebu / Hanoi")
+        assert location_conflict("United States", job)
+
+    def test_a_slash_list_is_read_as_every_city_it_names(self):
+        """Only the last segment used to be read, losing the rest."""
+        job = make_job(location="Singapore / Bangalore / Austin, Texas")
+        assert not location_conflict("United States", job)
+
+    def test_a_board_hierarchy_of_non_places_is_still_kept(self):
+        """A Lever team and commitment name no place, so they rule nothing out."""
+        job = make_job(location="Engineering / Full-time / Remote")
+        assert not location_conflict("United States", job)
+
     def test_a_country_search_drops_other_countries(self):
         for city in ("Bengaluru, India", "London, United Kingdom", "Singapore"):
             job = make_job(location=city, work_mode="onsite")

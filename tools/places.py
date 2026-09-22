@@ -62,6 +62,12 @@ COUNTRY_ALIASES = {
     "turkey": "Turkey", "egypt": "Egypt", "nigeria": "Nigeria", "kenya": "Kenya",
     "romania": "Romania", "czech republic": "Czech Republic", "czechia": "Czech Republic",
     "hungary": "Hungary", "greece": "Greece", "ukraine": "Ukraine",
+    # Seen on the boards this app reads. A country missing here parses as a
+    # city with no country, and an unknown country is kept — so a Peru posting
+    # survived a search for the United States.
+    "peru": "Peru", "serbia": "Serbia", "costa rica": "Costa Rica",
+    "cambodia": "Cambodia", "pakistan": "Pakistan", "kazakhstan": "Kazakhstan",
+    "venezuela": "Venezuela", "ksa": "Saudi Arabia",
 }
 
 # Two-letter prefixes used by address-style location strings.
@@ -491,5 +497,17 @@ def _expand(part: str) -> list[Place]:
         return [parse_place(text)]
     body = _OFFICE_CODE_RE.sub("", body).strip()
     if "/" in body:
-        body = body.rsplit("/", 1)[-1].strip()
+        # A slash list is read as every place it names, not just the last one.
+        # "Singapore / Bangalore / Chennai" is a role open in three cities, and
+        # keeping only Chennai lost the other two. Segments that name no place
+        # — a Lever board's team or commitment — parse as unknown and carry no
+        # weight, so reading them all costs nothing.
+        segments = [seg.strip() for seg in body.split("/") if seg.strip()]
+        places = [
+            place
+            for segment in segments
+            for place in _parse_tokens(segment, is_remote=is_remote, raw=text)
+        ]
+        if any(place.is_known for place in places):
+            return places
     return _parse_tokens(body, is_remote=is_remote, raw=text)
