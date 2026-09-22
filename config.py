@@ -87,7 +87,7 @@ class Settings:
     llm_models: str = ""
     demo_mode: str = "auto"
     default_source_category: str = "company_careers"
-    default_freshness_window: str = "last_24_hours"
+    default_freshness_window: str = "last_7_days"
     default_experience_level: str = "internship"
     max_job_results: int = 8
     max_job_description_chars: int = 20000

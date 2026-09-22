@@ -28,7 +28,9 @@ FRESHNESS_DAYS: dict[str, float] = {
 }
 
 DEFAULT_ROLE = "Data Analyst Intern"
-DEFAULT_LOCATION = "Houston, TX"
+# A country, not a city. Few employers post an internship in any one city in a
+# 24-hour window, so a city default showed an empty screen most of the time.
+DEFAULT_LOCATION = "United States"
 
 
 @dataclass(frozen=True)
@@ -39,7 +41,7 @@ class SearchQuery:
     location: str = DEFAULT_LOCATION
     work_mode: str = "any"
     query_category: str = "company_careers"
-    freshness_window: str = "last_24_hours"
+    freshness_window: str = "last_7_days"
     experience_level: str = "internship"
     employment_type: str = "any"
 
