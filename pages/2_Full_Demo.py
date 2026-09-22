@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 import streamlit as st
 from langgraph.types import Command
 
+import resume_store
 from agent.graph import build_deps, build_graph
 from config import load_settings
 from models.ats import ATS_LONG_DISCLAIMER, BAND_LABELS, AtsAssessment, AtsRecommendation
@@ -201,6 +202,9 @@ def run_agent(params: dict[str, Any]) -> None:
     # second, unrelated one.
     st.session_state.query = SearchQuery.from_dict(params)
     graph = get_graph()
+    # The run carries the resume the Resume page holds, so an edit made there
+    # is what gets scored rather than whatever is still on disk.
+    params = {**params, "resume": resume_store.active_resume(settings)}
     with st.status("Running the career agent…", expanded=True) as status:
         status.write("Retrieving current public job pages…")
         result = graph.invoke(params, graph_config())
@@ -251,7 +255,7 @@ st.warning(
         "Google's API. ATS readiness is estimated using a transparent "
         "workshop rubric, not an employer's proprietary ATS."
     )
-    if settings.using_custom_resume
+    if resume_store.is_custom(settings)
     else (
         "Demo uses a fictional resume and public job data. It does not submit "
         "applications. ATS readiness is estimated using a transparent workshop "

@@ -122,7 +122,22 @@ def _level_suffix(level: ExperienceLevel) -> str:
 
 
 def load_sample_resume(state: CareerAgentState, deps: AgentDeps) -> dict[str, Any]:
-    """Load and validate the master resume the settings point at."""
+    """Load and validate the master resume this run should score against.
+
+    A resume supplied with the run — one built in the app — is used as given.
+    Only when none was supplied is the file the settings point at read, so the
+    editor on screen is what the agent actually uses.
+    """
+    supplied = state.get("resume")
+    if supplied is not None:
+        return {
+            "resume": supplied,
+            "revision_count": 0,
+            "progress_events": [
+                event("Resume loaded", detail=f"{supplied.name} (edited in the app)")
+            ],
+        }
+
     path = deps.settings.resume_path
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))

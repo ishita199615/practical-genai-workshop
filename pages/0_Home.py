@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+import resume_store
 from config import load_settings
 from lessons import ALL_STEPS
 
@@ -31,7 +32,7 @@ st.warning(
         "Google's API. ATS readiness is estimated using a transparent "
         "workshop rubric, not an employer's proprietary ATS."
     )
-    if settings.using_custom_resume
+    if resume_store.is_custom(settings)
     else (
         "Demo uses a fictional resume and public job data. It does not submit "
         "applications. ATS readiness is estimated using a transparent workshop "
